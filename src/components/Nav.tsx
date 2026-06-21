@@ -3,7 +3,6 @@ import AppLogo from "./AppLogo";
 
 const NAV_LINKS = [
 	{ href: "#what", label: "What it is" },
-	{ href: "#how", label: "How it works" },
 	{ href: "#features", label: "Features" },
 	{ href: "#privacy", label: "Privacy" },
 	{ href: "#team", label: "Team" },

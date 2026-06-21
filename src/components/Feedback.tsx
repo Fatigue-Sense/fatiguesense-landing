@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 
 const inputCls =
 	"flex-1 font-display text-[15px] text-text1 bg-bg2 border border-line2 py-3.5 px-[18px] outline-none transition-[border-color,box-shadow] duration-300 placeholder:text-text4 focus:border-accent focus:shadow-[0_0_0_3px_var(--color-accent-soft)] rounded-lg sm:rounded-l-lg sm:rounded-r-none sm:border-r-0";
@@ -9,18 +9,28 @@ export default function Feedback() {
 	const [msg, setMsg] = useState("");
 	const [email, setEmail] = useState("");
 	const [rating, setRating] = useState(0);
+	const [hover, setHover] = useState(0);
 	const [submitted, setSubmitted] = useState(false);
+	const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+	useEffect(() => {
+		return () => {
+			if (timerRef.current) clearTimeout(timerRef.current);
+		};
+	}, []);
 
 	const handleSubmit = (e: React.FormEvent) => {
 		e.preventDefault();
 		setSubmitted(true);
-		setTimeout(() => {
+		timerRef.current = setTimeout(() => {
 			setMsg("");
 			setEmail("");
 			setRating(0);
 			setSubmitted(false);
 		}, 4000);
 	};
+
+	const active = hover || rating;
 
 	return (
 		<section
@@ -48,28 +58,34 @@ export default function Feedback() {
 					Questions, ideas, or criticism - all welcome.
 				</p>
 				<form
-					className="flex flex-col gap-3 max-w-[520px] mx-auto text-left"
+					className="flex flex-col gap-5 max-w-[520px] mx-auto text-left"
 					data-animate="fade-up"
 					onSubmit={handleSubmit}
 				>
 					{/* Star rating */}
-					<div className="flex items-center gap-1.5">
+					<div className="flex items-center justify-center gap-1">
 						{STARS.map((n) => (
 							<button
 								key={n}
 								type="button"
-								aria-label={`${n} star${n > 1 ? "s" : ""}`}
+								aria-label={`Rate ${n} star${n > 1 ? "s" : ""}`}
 								onClick={() => setRating(n)}
-								className="p-0.5 cursor-pointer bg-transparent border-none transition-transform duration-150 hover:scale-110 active:scale-95"
+								onMouseEnter={() => setHover(n)}
+								onMouseLeave={() => setHover(0)}
+								className="p-1 cursor-pointer bg-transparent border-none transition-transform duration-150 hover:scale-115 active:scale-95"
 							>
 								<svg
 									viewBox="0 0 24 24"
-									className="w-7 h-7"
-									fill={n <= rating ? "var(--color-warn)" : "none"}
-									stroke={
-										n <= rating
+									className="w-8 h-8 transition-[fill,stroke] duration-200"
+									fill={
+										n <= active
 											? "var(--color-warn)"
-											: "var(--color-text3)"
+											: "none"
+									}
+									stroke={
+										n <= active
+											? "var(--color-warn)"
+											: "var(--color-text4)"
 									}
 									strokeWidth="1.5"
 								>
@@ -77,11 +93,9 @@ export default function Feedback() {
 								</svg>
 							</button>
 						))}
-						{rating > 0 && (
-							<span className="font-display text-[13px] text-text3 ml-2">
-								{rating}/5
-							</span>
-						)}
+						<span className="font-mono text-xs text-text3 ml-2 w-8 tabular-nums">
+							{rating > 0 ? `${rating}/5` : ""}
+						</span>
 					</div>
 
 					<textarea
@@ -112,7 +126,7 @@ export default function Feedback() {
 					</div>
 				</form>
 				{submitted && (
-					<p className="font-display text-sm text-ok mt-4">
+					<p className="font-display text-sm text-ok mt-4 animate-[fade-in_0.4s_ease]">
 						Thanks for your feedback. We appreciate it.
 					</p>
 				)}

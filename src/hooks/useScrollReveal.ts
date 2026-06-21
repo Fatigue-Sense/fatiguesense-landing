@@ -5,12 +5,9 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 gsap.registerPlugin(ScrollTrigger);
 
 export default function useScrollReveal() {
-	const initialized = useRef(false);
+	const triggersRef = useRef<ScrollTrigger[]>([]);
 
 	useEffect(() => {
-		if (initialized.current) return;
-		initialized.current = true;
-
 		const prefersReducedMotion = window.matchMedia(
 			"(prefers-reduced-motion: reduce)",
 		).matches;
@@ -18,6 +15,8 @@ export default function useScrollReveal() {
 			gsap.set("[data-animate]", { opacity: 1, y: 0, scale: 1 });
 			return;
 		}
+
+		const triggers: ScrollTrigger[] = [];
 
 		const revealElements = gsap.utils.toArray(
 			"[data-animate]",
@@ -28,7 +27,7 @@ export default function useScrollReveal() {
 
 			const animType = el.dataset.animate;
 
-			ScrollTrigger.create({
+			const st = ScrollTrigger.create({
 				trigger: el,
 				start: "top bottom-=80",
 				once: true,
@@ -50,12 +49,13 @@ export default function useScrollReveal() {
 					}
 				},
 			});
+			triggers.push(st);
 		});
 
 		/* Feature cards stagger */
 		const featuresGrid = document.querySelector(".features-grid");
 		if (featuresGrid) {
-			ScrollTrigger.create({
+			const st = ScrollTrigger.create({
 				trigger: featuresGrid,
 				start: "top bottom-=60",
 				once: true,
@@ -69,33 +69,14 @@ export default function useScrollReveal() {
 					});
 				},
 			});
+			triggers.push(st);
 			gsap.set(".feature-card", { opacity: 0, y: 24 });
-		}
-
-		/* Steps stagger */
-		const stepsRow = document.querySelector(".steps-row");
-		if (stepsRow) {
-			ScrollTrigger.create({
-				trigger: stepsRow,
-				start: "top bottom-=60",
-				once: true,
-				onEnter: () => {
-					gsap.to(".step", {
-						opacity: 1,
-						y: 0,
-						duration: 0.6,
-						stagger: 0.12,
-						ease: "power3.out",
-					});
-				},
-			});
-			gsap.set(".step", { opacity: 0, y: 24 });
 		}
 
 		/* Privacy points stagger */
 		const privacyPoints = document.querySelector(".privacy-points");
 		if (privacyPoints) {
-			ScrollTrigger.create({
+			const st = ScrollTrigger.create({
 				trigger: privacyPoints,
 				start: "top bottom-=40",
 				once: true,
@@ -109,13 +90,14 @@ export default function useScrollReveal() {
 					});
 				},
 			});
+			triggers.push(st);
 			gsap.set(".privacy-point", { opacity: 0, y: 12 });
 		}
 
 		/* Team cards stagger */
 		const teamGrid = document.querySelector(".team-grid");
 		if (teamGrid) {
-			ScrollTrigger.create({
+			const st = ScrollTrigger.create({
 				trigger: teamGrid,
 				start: "top bottom-=60",
 				once: true,
@@ -129,13 +111,14 @@ export default function useScrollReveal() {
 					});
 				},
 			});
+			triggers.push(st);
 			gsap.set(".team-card", { opacity: 0, y: 24 });
 		}
 
 		/* Footer reveal */
 		const footer = document.querySelector("footer");
 		if (footer) {
-			ScrollTrigger.create({
+			const st = ScrollTrigger.create({
 				trigger: footer,
 				start: "top bottom-=40",
 				once: true,
@@ -148,11 +131,15 @@ export default function useScrollReveal() {
 					});
 				},
 			});
+			triggers.push(st);
 			gsap.set(footer, { opacity: 0, y: 20 });
 		}
 
+		triggersRef.current = triggers;
+
 		return () => {
-			ScrollTrigger.getAll().forEach((st) => st.kill());
+			triggers.forEach((st) => st.kill());
+			triggersRef.current = [];
 		};
 	}, []);
 }
