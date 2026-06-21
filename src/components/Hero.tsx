@@ -1,7 +1,9 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import AppLogo from "./AppLogo";
+import { submitWaitlist } from "../lib/api";
+import { useFormSubmit } from "../hooks/useFormSubmit";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -13,12 +15,23 @@ const btnCls =
 
 export default function Hero() {
 	const [email, setEmail] = useState("");
-	const [submitted, setSubmitted] = useState(false);
 	const logoRef = useRef<HTMLDivElement>(null);
 	const headlineRef = useRef<HTMLHeadingElement>(null);
 	const subtitleRef = useRef<HTMLParagraphElement>(null);
 	const formRef = useRef<HTMLFormElement>(null);
 	const mockupRef = useRef<HTMLDivElement>(null);
+
+	const submitHero = useCallback(
+		async (address: string) => submitWaitlist(address, "hero"),
+		[],
+	);
+	const { loading, error, submitted, submit } = useFormSubmit(submitHero);
+
+	useEffect(() => {
+		if (!submitted) return;
+		const timer = setTimeout(() => setEmail(""), 3000);
+		return () => clearTimeout(timer);
+	}, [submitted]);
 
 	useEffect(() => {
 		const prefersReducedMotion = window.matchMedia(
@@ -88,32 +101,29 @@ export default function Hero() {
 		};
 	}, []);
 
-	const handleSubmit = (e: React.FormEvent) => {
+	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
-		setSubmitted(true);
-		setTimeout(() => {
-			setEmail("");
-		}, 3000);
+		await submit(email);
 	};
 
 	return (
 		<section
-			className="relative min-h-dvh flex flex-col items-center justify-start pt-[clamp(48px,10vh,72px)] overflow-hidden"
+			className="relative min-h-dvh flex flex-col items-center justify-start pt-[clamp(120px,18vh,168px)] overflow-hidden"
 			id="hero"
 		>
-			<div className="text-center max-w-[680px] px-6 relative z-[2]">
+			<div className="text-center max-w-[720px] px-6 relative z-[2]">
 				<div
-					className="inline-flex items-center gap-2.5 mb-[clamp(24px,5vh,40px)] opacity-0"
+					className="inline-flex items-center gap-3 mb-[clamp(32px,6vh,52px)] opacity-0"
 					ref={logoRef}
 				>
-					<AppLogo size={42} />
-					<span className="font-display text-xl font-bold tracking-[-0.04em] text-text1">
+					<AppLogo size={48} />
+					<span className="font-display text-[22px] font-bold tracking-[-0.04em] text-text1">
 						Fatigue<span className="text-text2 font-medium">Sense</span>
 					</span>
 				</div>
 
 				<h1
-					className="font-display text-[clamp(28px,5.5vw,52px)] font-semibold leading-[1.06] tracking-[-0.04em] text-text1 mb-[clamp(16px,2.5vh,24px)] opacity-0"
+					className="font-display text-[clamp(32px,5.8vw,56px)] font-semibold leading-[1.08] tracking-[-0.04em] text-text1 mb-[clamp(20px,3vh,32px)] opacity-0"
 					ref={headlineRef}
 				>
 					Mental fatigue monitoring for people who{" "}
@@ -121,7 +131,7 @@ export default function Hero() {
 				</h1>
 
 				<p
-					className="font-display text-[clamp(15px,2vw,17px)] leading-[1.6] text-text2 max-w-[520px] mx-auto mb-[clamp(28px,4vh,40px)] opacity-0"
+					className="font-display text-[clamp(16px,2.1vw,18px)] leading-[1.65] text-text2 max-w-[540px] mx-auto mb-[clamp(36px,5vh,52px)] opacity-0"
 					ref={subtitleRef}
 				>
 					Real-time cognitive state tracking through your webcam.
@@ -143,16 +153,26 @@ export default function Hero() {
 						autoComplete="email"
 						value={email}
 						onChange={(e) => setEmail(e.target.value)}
+						disabled={loading || submitted}
 					/>
 					<button
 						className={btnCls}
 						type="submit"
-						disabled={submitted}
+						disabled={loading || submitted}
 					>
-						{submitted ? "You're in" : "Stay updated"}
+						{loading
+							? "Joining..."
+							: submitted
+								? "You're in"
+								: "Stay updated"}
 					</button>
 				</form>
-				{submitted && (
+				{error && (
+					<p className="font-display text-sm text-danger text-center mt-2.5">
+						{error}
+					</p>
+				)}
+				{submitted && !error && (
 					<p className="font-display text-sm text-ok text-center mt-2.5">
 						You are on the list. We will be in touch.
 					</p>
@@ -160,7 +180,7 @@ export default function Hero() {
 			</div>
 
 			<div
-				className="w-full max-w-[920px] mt-[clamp(32px,6vh,64px)] px-6 relative z-[1] opacity-0"
+				className="w-full max-w-[920px] mt-[clamp(48px,8vh,80px)] px-6 relative z-[1] opacity-0"
 				ref={mockupRef}
 			>
 				<div className="dash-mockup bg-bg2 border border-line rounded-t-[14px] border-b-0 overflow-hidden">

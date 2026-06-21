@@ -10,7 +10,7 @@ const NAV_LINKS = [
 ];
 
 const linkClass =
-	"font-display text-[13px] font-medium text-text2 hover:text-text1 transition-colors duration-200";
+	"font-display text-[14px] font-medium text-text2 hover:text-text1 transition-colors duration-200";
 
 export default function Nav() {
 	const [scrolled, setScrolled] = useState(false);
@@ -43,21 +43,21 @@ export default function Nav() {
 	return (
 		<>
 			<nav
-				className={`site-nav fixed top-0 left-0 right-0 z-100 py-3${scrolled ? " scrolled" : ""}`}
+				className={`site-nav fixed top-0 left-0 right-0 z-100 py-5${scrolled ? " scrolled" : ""}`}
 				id="site-nav"
 			>
-				<div className="flex justify-between items-center mx-auto w-[min(1200px,calc(100vw-32px))]">
+				<div className="flex justify-between items-center mx-auto w-[min(1200px,calc(100vw-48px))]">
 					<a
 						href="#hero"
-						className="flex items-center gap-2"
+						className="flex items-center gap-2.5"
 						onClick={(e) => handleNavClick(e, "#hero")}
 					>
-						<AppLogo size={28} />
-						<span className="font-display font-bold text-[15px] text-text1 tracking-[-0.03em]">
+						<AppLogo size={32} />
+						<span className="font-display font-bold text-[17px] text-text1 tracking-[-0.03em]">
 							FatigueSense
 						</span>
 					</a>
-					<div className="hidden md:flex items-center gap-7">
+					<div className="hidden md:flex items-center gap-9">
 						{NAV_LINKS.map((link) => (
 							<a
 								key={link.href}
@@ -70,14 +70,14 @@ export default function Nav() {
 						))}
 						<a
 							href="#signup"
-							className="bg-accent px-[18px] py-2 border-none rounded-[7px] font-display font-semibold text-[13px] text-white whitespace-nowrap active:scale-[0.96] transition-[background,transform,box-shadow] duration-200 cursor-pointer nav-cta"
+							className="bg-accent px-5 py-2.5 border-none rounded-[8px] font-display font-semibold text-[14px] text-white whitespace-nowrap active:scale-[0.96] transition-[background,transform,box-shadow] duration-200 cursor-pointer nav-cta"
 							onClick={(e) => handleNavClick(e, "#signup")}
 						>
 							Stay updated
 						</a>
 					</div>
 					<button
-						className="md:hidden flex justify-center items-center bg-transparent hover:bg-bg2 border border-line2 rounded-lg w-9 h-9 text-text1 transition-colors duration-200 cursor-pointer"
+						className="md:hidden flex justify-center items-center bg-transparent hover:bg-bg2 border border-line2 rounded-lg w-10 h-10 text-text1 transition-colors duration-200 cursor-pointer"
 						id="hamburger"
 						aria-label="Open menu"
 						onClick={() => setMenuOpen(true)}

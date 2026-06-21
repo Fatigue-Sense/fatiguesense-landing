@@ -1,15 +1,25 @@
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
+import { submitWaitlist } from "../lib/api";
+import { useFormSubmit } from "../hooks/useFormSubmit";
 
 export default function Signup() {
 	const [email, setEmail] = useState("");
-	const [submitted, setSubmitted] = useState(false);
 
-	const handleSubmit = (e: React.FormEvent) => {
+	const submitSignup = useCallback(
+		async (address: string) => submitWaitlist(address, "signup"),
+		[],
+	);
+	const { loading, error, submitted, submit } = useFormSubmit(submitSignup);
+
+	useEffect(() => {
+		if (!submitted) return;
+		const timer = setTimeout(() => setEmail(""), 3000);
+		return () => clearTimeout(timer);
+	}, [submitted]);
+
+	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
-		setSubmitted(true);
-		setTimeout(() => {
-			setEmail("");
-		}, 3000);
+		await submit(email);
 	};
 
 	return (
@@ -46,16 +56,26 @@ export default function Signup() {
 						autoComplete="email"
 						value={email}
 						onChange={(e) => setEmail(e.target.value)}
+						disabled={loading || submitted}
 					/>
 					<button
 						className="signup-btn-hover font-display text-[15px] font-semibold text-white bg-accent border-none py-[15px] px-8 cursor-pointer whitespace-nowrap transition-[background,transform,box-shadow] duration-[0.25s,0.15s,0.25s] rounded-lg sm:rounded-l-none sm:rounded-r-lg active:scale-[0.97] disabled:opacity-60 disabled:cursor-not-allowed"
 						type="submit"
-						disabled={submitted}
+						disabled={loading || submitted}
 					>
-						{submitted ? "You're in" : "Stay updated"}
+						{loading
+							? "Joining..."
+							: submitted
+								? "You're in"
+								: "Stay updated"}
 					</button>
 				</form>
-				{submitted && (
+				{error && (
+					<p className="font-display text-sm text-danger mt-4">
+						{error}
+					</p>
+				)}
+				{submitted && !error && (
 					<p className="font-display text-sm text-ok mt-4">
 						You are on the list. We will be in touch.
 					</p>

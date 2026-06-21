@@ -1,3 +1,37 @@
+# FatigueSense Landing
+
+Marketing site for FatigueSense — waitlist signups and feedback stored in Supabase, emails via Resend, deployed on Vercel.
+
+## Local development
+
+```bash
+npm install
+npm run dev          # frontend only (forms won't hit API)
+npm run dev:api      # full stack with Vercel API routes
+```
+
+Copy `.env.example` to `.env.local` and fill in your secrets before running `dev:api`.
+
+## Environment variables
+
+Set these in **Vercel → Project → Settings → Environment Variables** (and in `.env.local` for local API testing):
+
+| Variable | Description |
+|----------|-------------|
+| `SUPABASE_URL` | Supabase project URL |
+| `SUPABASE_SERVICE_ROLE_KEY` | Service role key (server only) |
+| `RESEND_API_KEY` | Resend API key |
+| `RESEND_FROM_EMAIL` | Sender address (`onboarding@resend.dev` until domain verified) |
+| `NOTIFY_EMAIL` | Your inbox for feedback notifications |
+
+Without a verified Resend domain, waitlist confirmation emails only deliver to your verified Resend account email. Signups are still stored.
+
+## Database
+
+Migrations live in `supabase/migrations/`. Apply via Supabase dashboard SQL editor or `supabase db push`.
+
+---
+
 # React + TypeScript + Vite
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
