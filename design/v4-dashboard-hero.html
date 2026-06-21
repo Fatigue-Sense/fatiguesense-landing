@@ -1,0 +1,1910 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>FatigueSense - Real-time mental fatigue monitoring</title>
+<meta name="description" content="Real-time mental fatigue monitoring through your webcam. 100% local. No cloud, no uploads, no storage." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+/* ===== RESET ===== */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+/* ===== TOKENS ===== */
+:root {
+  --bg: #08090a;
+  --bg1: #0e0f12;
+  --bg2: #14161a;
+  --bg3: #1b1d22;
+  --line: #1a1c20;
+  --line2: #22252a;
+  --line3: #2f333b;
+  --text1: #e8e9ec;
+  --text2: #9b9da4;
+  --text3: #6a6c73;
+  --text4: #3f4147;
+  --accent: #7c83f7;
+  --accent-soft: rgba(124,131,247,0.10);
+  --ok: #5ec898;
+  --warn: #e3b95a;
+  --danger: #e57464;
+  --cyan: #73d6ff;
+  --display: "Space Grotesk", "Geist", ui-sans-serif, system-ui, sans-serif;
+  --mono: "IBM Plex Mono", "Geist Mono", ui-monospace, monospace;
+}
+
+html {
+  background-color: var(--bg);
+  color: var(--text1);
+  font-family: var(--display);
+  font-size: 16px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body { min-height: 100vh; overflow-x: hidden; }
+
+img, svg { display: block; max-width: 100%; }
+a { color: inherit; text-decoration: none; }
+
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
+
+/* ===== STICKY NAV ===== */
+.site-nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  padding: 12px 0;
+  transition: background 0.35s ease, box-shadow 0.35s ease, padding 0.35s ease;
+}
+
+.site-nav.scrolled {
+  background: rgba(8,9,10,0.82);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  box-shadow: 0 1px 0 var(--line);
+  padding: 8px 0;
+}
+
+.nav-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: min(1200px, calc(100vw - 32px));
+  margin: 0 auto;
+}
+
+.nav-brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.nav-logo-svg {
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
+}
+
+.nav-brand-text {
+  font-family: var(--display);
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  color: var(--text1);
+}
+
+.nav-links {
+  display: none;
+  align-items: center;
+  gap: 28px;
+}
+
+@media (min-width: 768px) {
+  .nav-links { display: flex; }
+}
+
+.nav-links a {
+  font-family: var(--display);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text2);
+  transition: color 0.2s;
+}
+
+.nav-links a:hover { color: var(--text1); }
+
+.nav-cta {
+  font-family: var(--display);
+  font-size: 13px;
+  font-weight: 600;
+  color: #ffffff;
+  background: var(--accent);
+  border: none;
+  padding: 8px 18px;
+  border-radius: 7px;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+  white-space: nowrap;
+  box-shadow: 0 2px 8px rgba(124,131,247,0.25);
+}
+
+.nav-cta:hover { background: color-mix(in oklab, var(--accent) 90%, white); box-shadow: 0 4px 16px rgba(124,131,247,0.35); }
+.nav-cta:active { transform: scale(0.96); }
+
+.nav-hamburger {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  background: none;
+  border: 1px solid var(--line2);
+  color: var(--text1);
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+@media (min-width: 768px) { .nav-hamburger { display: none; } }
+.nav-hamburger:hover { background: var(--bg2); }
+.nav-hamburger svg { width: 18px; height: 18px; }
+
+/* Mobile menu */
+.mobile-menu {
+  position: fixed;
+  inset: 0;
+  z-index: 99;
+  background: rgba(8,9,10,0.96);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 32px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+.mobile-menu.open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.mobile-menu a {
+  font-family: var(--display);
+  font-size: 20px;
+  font-weight: 500;
+  color: var(--text2);
+  transition: color 0.2s;
+}
+
+.mobile-menu a:hover { color: var(--text1); }
+
+.mobile-menu-close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  background: none;
+  border: 1px solid var(--line2);
+  color: var(--text1);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.container {
+  width: min(1200px, calc(100vw - 48px));
+  margin: 0 auto;
+}
+
+/* ===== AMBIENT BLOBS ===== */
+.ambient-blob {
+  position: fixed;
+  border-radius: 50%;
+  filter: blur(120px);
+  pointer-events: none;
+  z-index: 0;
+  will-change: transform;
+}
+
+.ambient-blob-a {
+  width: min(58vw, 560px);
+  height: min(58vw, 560px);
+  top: -14%;
+  right: -10%;
+  background: color-mix(in oklab, var(--accent) 22%, transparent);
+}
+
+.ambient-blob-b {
+  width: min(48vw, 460px);
+  height: min(48vw, 460px);
+  bottom: -18%;
+  left: 2%;
+  background: color-mix(in oklab, var(--text3) 10%, transparent);
+}
+
+.ambient-blob-c {
+  width: min(38vw, 360px);
+  height: min(38vw, 360px);
+  top: 42%;
+  left: 38%;
+  background: color-mix(in oklab, var(--accent) 8%, color-mix(in oklab, var(--warn) 6%, transparent));
+}
+
+@keyframes ambient-drift {
+  0%, 100% { transform: translate(0, 0) rotate(0deg); }
+  33% { transform: translate(18px, -12px) rotate(1deg); }
+  66% { transform: translate(-8px, 8px) rotate(-1deg); }
+}
+
+.ambient-blob-a { animation: ambient-drift 28s ease-in-out infinite; }
+.ambient-blob-b { animation: ambient-drift 32s ease-in-out infinite reverse; }
+.ambient-blob-c { animation: ambient-drift 24s ease-in-out infinite; animation-delay: -8s; }
+
+/* ===== HERO ===== */
+.hero {
+  position: relative;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding: clamp(48px, 10vh, 72px) 0 0;
+  overflow: hidden;
+}
+
+.hero-content {
+  text-align: center;
+  max-width: 680px;
+  padding: 0 24px;
+  position: relative;
+  z-index: 2;
+}
+
+.hero-logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: clamp(24px, 5vh, 40px);
+  opacity: 0;
+}
+
+.hero-logo svg {
+  width: 42px;
+  height: 42px;
+  flex-shrink: 0;
+}
+
+.hero-logo-text {
+  font-family: var(--display);
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: -0.04em;
+  color: var(--text1);
+}
+
+.hero-logo-text span {
+  color: var(--text2);
+  font-weight: 500;
+}
+
+.hero-headline {
+  font-family: var(--display);
+  font-size: clamp(28px, 5.5vw, 52px);
+  font-weight: 600;
+  line-height: 1.06;
+  letter-spacing: -0.04em;
+  color: var(--text1);
+  margin-bottom: clamp(16px, 2.5vh, 24px);
+  opacity: 0;
+}
+
+.hero-headline em {
+  font-style: normal;
+  color: var(--accent);
+}
+
+.hero-subtitle {
+  font-family: var(--display);
+  font-size: clamp(15px, 2vw, 17px);
+  font-weight: 400;
+  line-height: 1.6;
+  color: var(--text2);
+  max-width: 520px;
+  margin: 0 auto clamp(28px, 4vh, 40px);
+  opacity: 0;
+}
+
+/* Hero CTA */
+.hero-signup {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-width: 420px;
+  margin: 0 auto;
+  opacity: 0;
+}
+
+@media (min-width: 520px) {
+  .hero-signup { flex-direction: row; gap: 0; }
+}
+
+.signup-input {
+  flex: 1;
+  font-family: var(--display);
+  font-size: 15px;
+  color: var(--text1);
+  background: var(--bg2);
+  border: 1px solid var(--line2);
+  padding: 14px 18px;
+  outline: none;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+@media (max-width: 519px) {
+  .signup-input { border-radius: 8px; }
+}
+
+@media (min-width: 520px) {
+  .signup-input { border-radius: 8px 0 0 8px; border-right: none; }
+}
+
+.signup-input::placeholder { color: var(--text4); }
+.signup-input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+.signup-btn {
+  font-family: var(--display);
+  font-size: 15px;
+  font-weight: 600;
+  color: #fff;
+  background: var(--accent);
+  border: none;
+  padding: 14px 28px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.25s ease, transform 0.15s ease, box-shadow 0.25s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+@media (max-width: 519px) { .signup-btn { border-radius: 8px; } }
+@media (min-width: 520px) { .signup-btn { border-radius: 0 8px 8px 0; } }
+
+.signup-btn:hover {
+  background: color-mix(in oklab, var(--accent) 88%, white);
+  box-shadow: 0 4px 20px rgba(124,131,247,0.3);
+}
+
+.signup-btn:active { transform: scale(0.97); }
+.signup-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+.hero-confirm {
+  font-family: var(--display);
+  font-size: 14px;
+  color: var(--ok);
+  text-align: center;
+  margin-top: 10px;
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+.hero-confirm.show { opacity: 1; transform: translateY(0); }
+
+/* ===== DASHBOARD MOCKUP ===== */
+.hero-mockup-wrapper {
+  width: 100%;
+  max-width: 920px;
+  margin-top: clamp(32px, 6vh, 64px);
+  padding: 0 24px;
+  position: relative;
+  z-index: 1;
+  opacity: 0;
+}
+
+.dash-mockup {
+  background: var(--bg2);
+  border: 1px solid var(--line);
+  border-radius: 14px 14px 0 0;
+  border-bottom: none;
+  overflow: hidden;
+  box-shadow: 0 -12px 60px rgba(0,0,0,0.55), 0 0 0 1px rgba(255,255,255,0.03) inset;
+}
+
+.dash-chrome {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--line);
+  background: var(--bg1);
+}
+
+.dash-chrome-dots {
+  display: flex;
+  gap: 7px;
+  flex-shrink: 0;
+}
+
+.dash-chrome-dot {
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+}
+
+.dash-chrome-dot:nth-child(1) { background: #e57464; }
+.dash-chrome-dot:nth-child(2) { background: #e3b95a; }
+.dash-chrome-dot:nth-child(3) { background: #5ec898; }
+
+.dash-chrome-url {
+  flex: 1;
+  background: var(--bg);
+  border-radius: 5px;
+  padding: 5px 12px;
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--text3);
+  text-align: center;
+}
+
+.dash-interior {
+  padding: 24px 20px 32px;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 18px;
+}
+
+@media (min-width: 600px) {
+  .dash-interior {
+    grid-template-columns: 130px 1fr;
+    gap: 24px;
+    padding: 28px 24px 36px;
+  }
+}
+
+@media (min-width: 768px) {
+  .dash-interior {
+    grid-template-columns: 130px 1fr 190px;
+    gap: 28px;
+    padding: 32px 28px 40px;
+  }
+}
+
+/* Radial gauge */
+.dash-gauge {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.dash-ring-wrap {
+  position: relative;
+  width: 96px;
+  height: 96px;
+}
+
+.dash-ring-wrap svg { width: 100%; height: 100%; }
+
+.dash-score-label {
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text3);
+}
+
+/* Live feed placeholder */
+.dash-feed {
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  aspect-ratio: 4 / 3;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  position: relative;
+  overflow: hidden;
+}
+
+.dash-feed::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 50% 38%, rgba(124,131,247,0.07), transparent 60%);
+}
+
+.dash-feed-icon {
+  width: 36px;
+  height: 36px;
+  color: var(--text4);
+  position: relative;
+  z-index: 1;
+}
+
+.dash-feed-label {
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  color: var(--text4);
+  text-transform: uppercase;
+  position: relative;
+  z-index: 1;
+}
+
+.dash-feed-status {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  position: relative;
+  z-index: 1;
+}
+
+.dash-feed-pulse {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--ok);
+  animation: pulse-dot 2s ease-in-out infinite;
+}
+
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; box-shadow: 0 0 6px var(--ok); }
+  50% { opacity: 0.25; box-shadow: 0 0 2px var(--ok); }
+}
+
+.dash-feed-status-text {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--text3);
+}
+
+/* Metrics */
+.dash-metrics { display: none; }
+
+@media (min-width: 768px) {
+  .dash-metrics {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    justify-content: center;
+  }
+}
+
+.dash-metric {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.dash-metric-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.dash-metric-label {
+  font-family: var(--display);
+  font-size: 13px;
+  color: var(--text2);
+}
+
+.dash-metric-value {
+  font-family: var(--mono);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text1);
+  margin-left: auto;
+}
+
+.dash-status {
+  margin-top: 10px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--display);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--ok);
+  background: rgba(94,200,152,0.08);
+  border: 1px solid rgba(94,200,152,0.15);
+  border-radius: 7px;
+  padding: 9px 16px;
+  width: fit-content;
+}
+
+.dash-status-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--ok);
+  box-shadow: 0 0 6px rgba(94,200,152,0.4);
+}
+
+/* Mobile metrics */
+.dash-metrics-mobile {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  padding: 0 20px 24px;
+}
+
+@media (min-width: 600px) { .dash-metrics-mobile { display: none; } }
+
+.dash-metric-mini {
+  text-align: center;
+  padding: 12px 8px;
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+}
+
+.dash-metric-mini-value {
+  font-family: var(--mono);
+  font-size: 16px;
+  font-weight: 600;
+  display: block;
+}
+
+.dash-metric-mini-label {
+  font-family: var(--display);
+  font-size: 10px;
+  color: var(--text3);
+  margin-top: 5px;
+}
+
+/* ===== SECTION RHYTHM ===== */
+.section { padding: clamp(72px, 10vh, 120px) 0; }
+.section-sm { padding: clamp(48px, 7vh, 80px) 0; }
+.section-lg { padding: clamp(80px, 11vh, 128px) 0; }
+.section-xl { padding: clamp(96px, 14vh, 160px) 0; }
+.section-divider { border-top: 1px solid var(--line); }
+
+/* ===== WHAT IT IS ===== */
+.what-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 32px 72px;
+}
+
+@media (min-width: 768px) {
+  .what-grid { grid-template-columns: 180px 1fr; }
+}
+
+@media (min-width: 1024px) {
+  .what-grid { grid-template-columns: 220px 1fr; }
+}
+
+.what-headline {
+  font-family: var(--display);
+  font-size: clamp(22px, 3.5vw, 32px);
+  font-weight: 500;
+  line-height: 1.3;
+  letter-spacing: -0.03em;
+  color: var(--text1);
+  margin-bottom: 24px;
+  max-width: 640px;
+}
+
+.what-body {
+  font-family: var(--display);
+  font-size: clamp(15px, 2vw, 17px);
+  font-weight: 400;
+  line-height: 1.7;
+  color: var(--text2);
+  max-width: 600px;
+}
+
+.section-label {
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text3);
+}
+
+/* ===== HOW IT WORKS ===== */
+.steps-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 32px 72px;
+}
+
+@media (min-width: 768px) {
+  .steps-grid { grid-template-columns: 180px 1fr; }
+}
+
+@media (min-width: 1024px) {
+  .steps-grid { grid-template-columns: 220px 1fr; }
+}
+
+.steps-row {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 48px;
+}
+
+@media (min-width: 640px) {
+  .steps-row {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 40px;
+    position: relative;
+  }
+  .steps-row::before {
+    content: "";
+    position: absolute;
+    top: 13px;
+    left: 24px;
+    right: 24px;
+    height: 1px;
+    background: var(--line);
+    z-index: 0;
+  }
+}
+
+.step { position: relative; z-index: 1; }
+
+.step-num {
+  font-family: var(--mono);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--accent);
+  margin-bottom: 18px;
+  letter-spacing: 0.04em;
+}
+
+@media (min-width: 640px) {
+  .step-num { background: var(--bg); display: inline-block; padding-right: 10px; }
+}
+
+.step-icon {
+  width: 44px;
+  height: 44px;
+  margin-bottom: 20px;
+  color: var(--text3);
+  transition: color 0.3s ease;
+}
+
+.step-icon svg { width: 100%; height: 100%; }
+
+.step:hover .step-icon { color: var(--accent); }
+
+.step-title {
+  font-family: var(--display);
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: var(--text1);
+  margin-bottom: 10px;
+}
+
+.step-desc {
+  font-family: var(--display);
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.6;
+  color: var(--text2);
+}
+
+/* ===== WHY IT MATTERS ===== */
+.features-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0;
+}
+
+@media (min-width: 640px) {
+  .features-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
+  }
+}
+
+.feature-card {
+  padding: 28px 0;
+  border-top: 1px solid var(--line);
+  transition: border-color 0.3s ease;
+}
+
+.feature-card:hover { border-color: var(--line2); }
+
+@media (min-width: 640px) {
+  .feature-card { padding: 36px 28px 36px 0; }
+  .feature-card:nth-child(odd) { padding-right: 28px; }
+  .feature-card:nth-child(even) { padding-left: 28px; border-left: 1px solid var(--line); }
+}
+
+.feature-icon {
+  width: 32px;
+  height: 32px;
+  margin-bottom: 20px;
+  color: var(--accent);
+  opacity: 0.85;
+}
+
+.feature-icon svg { width: 100%; height: 100%; }
+
+.feature-title {
+  font-family: var(--display);
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: var(--text1);
+  margin-bottom: 10px;
+}
+
+.feature-desc {
+  font-family: var(--display);
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.6;
+  color: var(--text2);
+  max-width: 460px;
+}
+
+/* ===== TEAM ===== */
+.team-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 20px;
+}
+
+@media (min-width: 640px) {
+  .team-grid { grid-template-columns: 1fr 1fr; }
+}
+
+.team-card {
+  background: var(--bg1);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 28px 24px;
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  transition: border-color 0.3s ease, background 0.3s ease;
+}
+
+.team-card:hover { border-color: var(--line2); background: var(--bg2); }
+
+.team-avatar {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: var(--bg3);
+  border: 1px solid var(--line2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-family: var(--mono);
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--accent);
+}
+
+.team-info { min-width: 0; }
+
+.team-name {
+  font-family: var(--display);
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text1);
+  letter-spacing: -0.02em;
+  margin-bottom: 4px;
+}
+
+.team-role {
+  font-family: var(--display);
+  font-size: 13px;
+  color: var(--text3);
+  margin-bottom: 8px;
+}
+
+.team-gh {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--accent);
+  transition: color 0.2s;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.team-gh:hover { color: var(--text1); }
+
+.team-gh svg { width: 14px; height: 14px; }
+
+/* ===== FEEDBACK ===== */
+.feedback { text-align: center; }
+
+.feedback-headline {
+  font-family: var(--display);
+  font-size: clamp(22px, 3.5vw, 30px);
+  font-weight: 600;
+  line-height: 1.25;
+  letter-spacing: -0.03em;
+  color: var(--text1);
+  margin-bottom: 14px;
+}
+
+.feedback-sub {
+  font-family: var(--display);
+  font-size: 15px;
+  font-weight: 400;
+  color: var(--text2);
+  margin-bottom: 36px;
+  max-width: 500px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.feedback-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-width: 520px;
+  margin: 0 auto;
+  text-align: left;
+}
+
+.feedback-textarea {
+  font-family: var(--display);
+  font-size: 15px;
+  color: var(--text1);
+  background: var(--bg2);
+  border: 1px solid var(--line2);
+  border-radius: 8px;
+  padding: 16px 18px;
+  outline: none;
+  resize: vertical;
+  min-height: 120px;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.feedback-textarea::placeholder { color: var(--text4); }
+.feedback-textarea:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+.feedback-submit-row {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+@media (min-width: 520px) {
+  .feedback-submit-row { flex-direction: row; gap: 0; }
+}
+
+.feedback-submit-row .signup-input {
+  flex: 1;
+}
+
+@media (max-width: 519px) {
+  .feedback-submit-row .signup-input { border-radius: 8px; }
+}
+
+@media (min-width: 520px) {
+  .feedback-submit-row .signup-input { border-radius: 8px 0 0 8px; border-right: none; }
+}
+
+.feedback-submit-btn {
+  font-family: var(--display);
+  font-size: 15px;
+  font-weight: 600;
+  color: #fff;
+  background: var(--accent);
+  border: none;
+  padding: 14px 28px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.25s ease, transform 0.15s ease;
+}
+
+@media (max-width: 519px) { .feedback-submit-btn { border-radius: 8px; } }
+@media (min-width: 520px) { .feedback-submit-btn { border-radius: 0 8px 8px 0; } }
+
+.feedback-submit-btn:hover { background: color-mix(in oklab, var(--accent) 88%, white); }
+.feedback-submit-btn:active { transform: scale(0.97); }
+.feedback-submit-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+.feedback-confirm {
+  font-family: var(--display);
+  font-size: 14px;
+  color: var(--ok);
+  margin-top: 16px;
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+.feedback-confirm.show { opacity: 1; transform: translateY(0); }
+
+/* ===== PRIVACY ===== */
+.privacy {
+  text-align: center;
+  position: relative;
+}
+
+.privacy-divider {
+  width: min(60vw, 400px);
+  height: 1px;
+  margin: 0 auto clamp(64px, 8vh, 96px);
+  background: linear-gradient(90deg, transparent, var(--line2), transparent);
+}
+
+.privacy-mark {
+  width: 60px;
+  height: 60px;
+  margin: 0 auto 32px;
+  color: var(--ok);
+}
+
+.privacy-mark svg { width: 100%; height: 100%; }
+
+.privacy-headline {
+  font-family: var(--display);
+  font-size: clamp(24px, 4.5vw, 40px);
+  font-weight: 600;
+  line-height: 1.15;
+  letter-spacing: -0.03em;
+  color: var(--text1);
+  margin-bottom: 24px;
+  max-width: 640px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.privacy-body {
+  font-family: var(--display);
+  font-size: clamp(15px, 2vw, 17px);
+  font-weight: 400;
+  line-height: 1.7;
+  color: var(--text2);
+  max-width: 600px;
+  margin: 0 auto 40px;
+}
+
+.privacy-points {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 16px 32px;
+  max-width: 620px;
+  margin: 0 auto;
+}
+
+.privacy-point {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--mono);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text2);
+  letter-spacing: 0.02em;
+}
+
+.privacy-point-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--ok);
+  flex-shrink: 0;
+  box-shadow: 0 0 8px rgba(94,200,152,0.3);
+}
+
+/* ===== BOTTOM SIGNUP ===== */
+.signup { text-align: center; }
+
+.signup-label {
+  font-family: var(--display);
+  font-size: clamp(22px, 3.5vw, 30px);
+  font-weight: 600;
+  line-height: 1.3;
+  letter-spacing: -0.03em;
+  color: var(--text1);
+  margin-bottom: 14px;
+}
+
+.signup-sub {
+  font-family: var(--display);
+  font-size: 15px;
+  font-weight: 400;
+  color: var(--text2);
+  margin-bottom: 36px;
+}
+
+.signup-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-width: 460px;
+  margin: 0 auto;
+}
+
+@media (min-width: 520px) { .signup-form { flex-direction: row; gap: 0; } }
+
+.signup-form .signup-input {
+  flex: 1;
+  font-family: var(--display);
+  font-size: 15px;
+  color: var(--text1);
+  background: var(--bg2);
+  border: 1px solid var(--line2);
+  padding: 15px 20px;
+  outline: none;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+@media (max-width: 519px) { .signup-form .signup-input { border-radius: 8px; } }
+@media (min-width: 520px) { .signup-form .signup-input { border-radius: 8px 0 0 8px; border-right: none; } }
+
+.signup-form .signup-input::placeholder { color: var(--text4); }
+.signup-form .signup-input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+.signup-form .signup-btn {
+  font-family: var(--display);
+  font-size: 15px;
+  font-weight: 600;
+  color: #fff;
+  background: var(--accent);
+  border: none;
+  padding: 15px 32px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.25s ease, transform 0.15s ease, box-shadow 0.25s ease;
+}
+
+@media (max-width: 519px) { .signup-form .signup-btn { border-radius: 8px; } }
+@media (min-width: 520px) { .signup-form .signup-btn { border-radius: 0 8px 8px 0; } }
+
+.signup-form .signup-btn:hover {
+  background: color-mix(in oklab, var(--accent) 88%, white);
+  box-shadow: 0 4px 20px rgba(124,131,247,0.3);
+}
+
+.signup-form .signup-btn:active { transform: scale(0.97); }
+.signup-form .signup-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+.signup-confirm {
+  font-family: var(--display);
+  font-size: 14px;
+  color: var(--ok);
+  margin-top: 16px;
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+.signup-confirm.show { opacity: 1; transform: translateY(0); }
+
+/* ===== FOOTER ===== */
+.footer { border-top: 1px solid var(--line); }
+.footer-inner {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  padding: 44px 0 40px;
+}
+
+@media (min-width: 640px) {
+  .footer-inner {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+  }
+}
+
+.footer-logo { display: flex; align-items: center; gap: 10px; }
+.footer-logo svg { width: 24px; height: 24px; color: var(--text3); }
+.footer-logo-text {
+  font-family: var(--display);
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text3);
+}
+
+.footer-links { display: flex; flex-wrap: wrap; gap: 16px 28px; }
+.footer-links a {
+  font-family: var(--display);
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--text3);
+  transition: color 0.2s;
+}
+
+.footer-links a:hover { color: var(--text1); }
+
+.footer-copy {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--text4);
+}
+
+/* ===== ACCESSIBILITY ===== */
+a:focus-visible, button:focus-visible, input:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+::selection { background: rgba(124,131,247,0.25); color: var(--text1); }
+
+/* ===== REDUCED MOTION ===== */
+@media (prefers-reduced-motion: reduce) {
+  .ambient-blob-a, .ambient-blob-b, .ambient-blob-c { animation: none !important; }
+  .dash-feed-pulse { animation: none; opacity: 1; }
+  .hero-logo, .hero-headline, .hero-subtitle, .hero-signup, .hero-mockup-wrapper { opacity: 1 !important; }
+}
+</style>
+</head>
+<body>
+
+<!-- ===== SVG DEFS ===== -->
+<svg width="0" height="0" aria-hidden="true" focusable="false" style="position:absolute">
+  <defs>
+    <linearGradient id="app-logo-grad" x1="0" y1="0" x2="96" y2="96" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#7C83F7" />
+      <stop offset="1" stop-color="#5560D8" />
+    </linearGradient>
+    <linearGradient id="grad-accent-ok" x1="16" x2="82" y1="14" y2="82" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#7c83f7" />
+      <stop offset="1" stop-color="#5ec898" />
+    </linearGradient>
+    <linearGradient id="grad-caution" x1="18" x2="80" y1="18" y2="78" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#e3b95a" />
+      <stop offset="1" stop-color="#e57464" />
+    </linearGradient>
+  </defs>
+
+  <symbol id="mark-iris-trace" viewBox="0 0 96 96">
+    <path d="M12 49c10.5-15.5 22.5-23 36-23s25.5 7.5 36 23c-10.5 15.5-22.5 23-36 23S22.5 64.5 12 49Z" fill="none" stroke="url(#grad-accent-ok)" stroke-width="5.5" stroke-linejoin="round"/>
+    <circle cx="48" cy="49" r="13.5" fill="none" stroke="currentColor" stroke-width="5"/>
+    <path d="M27 51c6.5-1 8.5-11 15-11 8.5 0 7.5 18 15 18 5.5 0 7.5-9 13-11" fill="none" stroke="#5ec898" stroke-width="4.5" stroke-linecap="round"/>
+    <circle cx="48" cy="49" r="4.5" fill="#7c83f7"/>
+  </symbol>
+
+  <symbol id="mark-local-sentinel" viewBox="0 0 96 96">
+    <path d="M48 12 75 25v20c0 18-10.5 31-27 39-16.5-8-27-21-27-39V25l27-13Z" fill="none" stroke="#2f333b" stroke-width="5.5" stroke-linejoin="round"/>
+    <path d="M30 49c5.5-9 11.5-13.5 18-13.5S60.5 40 66 49c-5.5 9-11.5 13.5-18 13.5S35.5 58 30 49Z" fill="none" stroke="#5ec898" stroke-width="5" stroke-linejoin="round"/>
+    <circle cx="48" cy="49" r="7" fill="#7c83f7"/>
+    <path d="M29 25h38" stroke="#73d6ff" stroke-width="4" stroke-linecap="round"/>
+  </symbol>
+
+  <symbol id="icon-camera" viewBox="0 0 48 48">
+    <rect x="8" y="14" width="32" height="24" rx="4" fill="none" stroke="currentColor" stroke-width="2.5"/>
+    <circle cx="24" cy="26" r="7" fill="none" stroke="currentColor" stroke-width="2.5"/>
+    <circle cx="24" cy="26" r="2.5" fill="currentColor"/>
+    <path d="M16 14l2-5h12l2 5" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+  </symbol>
+
+  <symbol id="icon-chart" viewBox="0 0 48 48">
+    <path d="M8 40V20l10 6 12-12 10 10v16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M8 40h32" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+    <circle cx="28" cy="24" r="2" fill="currentColor"/>
+    <circle cx="40" cy="16" r="2" fill="currentColor"/>
+  </symbol>
+
+  <symbol id="icon-eye" viewBox="0 0 48 48">
+    <path d="M6 24c7-10 15-14 18-14s11 4 18 14c-7 10-15 14-18 14s-11-4-18-14Z" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linejoin="round"/>
+    <circle cx="24" cy="24" r="7" fill="none" stroke="currentColor" stroke-width="2.5"/>
+    <circle cx="24" cy="24" r="2.5" fill="currentColor"/>
+  </symbol>
+
+  <symbol id="icon-bell" viewBox="0 0 48 48">
+    <path d="M14 34V20a10 10 0 1 1 20 0v14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+    <path d="M10 34h28" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+    <path d="M24 38a4 4 0 0 1-4-4" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+    <circle cx="24" cy="20" r="2" fill="currentColor"/>
+  </symbol>
+
+  <symbol id="icon-shield" viewBox="0 0 48 48">
+    <path d="M24 6L40 12v14c0 12-7 22-16 26-9-4-16-14-16-26V12L24 6Z" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linejoin="round"/>
+    <path d="M17 26l5 5 9-9" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+  </symbol>
+
+  <symbol id="icon-monitor" viewBox="0 0 48 48">
+    <rect x="6" y="8" width="36" height="24" rx="3" fill="none" stroke="currentColor" stroke-width="2.5"/>
+    <path d="M18 32v4M30 32v4M14 36h20" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+  </symbol>
+</svg>
+
+<!-- Ambient blobs -->
+<div class="ambient-blob ambient-blob-a" aria-hidden="true"></div>
+<div class="ambient-blob ambient-blob-b" aria-hidden="true"></div>
+<div class="ambient-blob ambient-blob-c" aria-hidden="true"></div>
+
+<!-- ===== STICKY NAV ===== -->
+<nav class="site-nav" id="site-nav">
+  <div class="nav-inner">
+    <a href="#hero" class="nav-brand">
+      <svg class="nav-logo-svg" viewBox="0 0 96 96" fill="none">
+        <rect width="96" height="96" rx="22" fill="url(#app-logo-grad)" />
+        <rect x="0.5" y="0.5" width="95" height="95" rx="21.5" fill="none" stroke="#FFFFFF" stroke-opacity="0.18" />
+        <g stroke="#FFFFFF" fill="none" stroke-linecap="round" stroke-linejoin="round" transform="translate(48 48) scale(0.68) translate(-48 -48)">
+          <path d="M26 38 H52 L26 64 H52" stroke-width="6" />
+          <path d="M56 22 H74 L56 40 H74" stroke-width="4.8" stroke-opacity="0.7" />
+        </g>
+      </svg>
+      <span class="nav-brand-text">FatigueSense</span>
+    </a>
+    <div class="nav-links">
+      <a href="#what">What it is</a>
+      <a href="#how">How it works</a>
+      <a href="#features">Features</a>
+      <a href="#privacy">Privacy</a>
+      <a href="#team">Team</a>
+      <a href="#feedback">Feedback</a>
+      <a href="#signup" class="nav-cta">Stay updated</a>
+    </div>
+    <button class="nav-hamburger" id="hamburger" aria-label="Open menu">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+        <path d="M4 6h16M4 12h16M4 18h16" />
+      </svg>
+    </button>
+  </div>
+</nav>
+
+<!-- Mobile menu -->
+<div class="mobile-menu" id="mobile-menu">
+  <button class="mobile-menu-close" id="menu-close" aria-label="Close menu">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12" /></svg>
+  </button>
+  <a href="#what" data-nav-close>What it is</a>
+  <a href="#how" data-nav-close>How it works</a>
+  <a href="#features" data-nav-close>Features</a>
+  <a href="#privacy" data-nav-close>Privacy</a>
+  <a href="#team" data-nav-close>Team</a>
+  <a href="#feedback" data-nav-close>Feedback</a>
+  <a href="#signup" data-nav-close>Stay updated</a>
+</div>
+
+<!-- ===== HERO ===== -->
+<section class="hero" id="hero">
+  <div class="hero-content">
+    <div class="hero-logo" data-animate="fade-up">
+      <svg width="42" height="42" viewBox="0 0 96 96" fill="none">
+        <rect width="96" height="96" rx="22" fill="url(#app-logo-grad)" />
+        <rect x="0.5" y="0.5" width="95" height="95" rx="21.5" fill="none" stroke="#FFFFFF" stroke-opacity="0.18" />
+        <g stroke="#FFFFFF" fill="none" stroke-linecap="round" stroke-linejoin="round" transform="translate(48 48) scale(0.68) translate(-48 -48)">
+          <path d="M26 38 H52 L26 64 H52" stroke-width="6" />
+          <path d="M56 22 H74 L56 40 H74" stroke-width="4.8" stroke-opacity="0.7" />
+        </g>
+      </svg>
+      <span class="hero-logo-text">Fatigue<span>Sense</span></span>
+    </div>
+
+    <h1 class="hero-headline" data-animate="fade-up">
+      Mental fatigue monitoring for people who <em>cannot afford to drift</em>.
+    </h1>
+
+    <p class="hero-subtitle" data-animate="fade-up">
+      Real-time cognitive state tracking through your webcam. No wearables, no hardware. Currently in development - not yet available for public use.
+    </p>
+
+    <form class="hero-signup" data-animate="fade-up" onsubmit="handleHeroSignup(event)">
+      <input class="signup-input" type="email" id="hero-email" placeholder="you@example.com" required aria-label="Email address" autocomplete="email" />
+      <button class="signup-btn" type="submit" id="hero-btn">Stay updated</button>
+    </form>
+    <p class="hero-confirm" id="hero-confirm">You are on the list. We will be in touch.</p>
+  </div>
+
+  <div class="hero-mockup-wrapper" data-animate="rise">
+    <div class="dash-mockup">
+      <div class="dash-chrome">
+        <div class="dash-chrome-dots">
+          <span class="dash-chrome-dot"></span>
+          <span class="dash-chrome-dot"></span>
+          <span class="dash-chrome-dot"></span>
+        </div>
+        <div class="dash-chrome-url">app.fatiguesense.dev</div>
+      </div>
+
+      <div class="dash-interior">
+        <div class="dash-gauge">
+          <div class="dash-ring-wrap">
+            <svg viewBox="0 0 96 96">
+              <circle cx="48" cy="48" r="40" fill="none" stroke="#1b1d22" stroke-width="7"/>
+              <circle cx="48" cy="48" r="40" fill="none" stroke="#5ec898" stroke-width="7" stroke-dasharray="188 63" stroke-dashoffset="-30" stroke-linecap="round" transform="rotate(-90 48 48)"/>
+              <text x="48" y="44" text-anchor="middle" fill="#e8e9ec" font-family="Space Grotesk, sans-serif" font-size="19" font-weight="600">76</text>
+              <text x="48" y="60" text-anchor="middle" fill="#6a6c73" font-family="IBM Plex Mono, monospace" font-size="10" font-weight="500">SCORE</text>
+            </svg>
+          </div>
+          <span class="dash-score-label">Engaged</span>
+        </div>
+
+        <div class="dash-feed">
+          <div class="dash-feed-icon"><svg viewBox="0 0 48 48"><use href="#icon-camera" /></svg></div>
+          <span class="dash-feed-label">Live feed</span>
+          <div class="dash-feed-status">
+            <span class="dash-feed-pulse"></span>
+            <span class="dash-feed-status-text">Active</span>
+          </div>
+        </div>
+
+        <div class="dash-metrics">
+          <div class="dash-metric">
+            <span class="dash-metric-dot" style="background:var(--ok);"></span>
+            <span class="dash-metric-label">PERCLOS</span>
+            <span class="dash-metric-value">0.09</span>
+          </div>
+          <div class="dash-metric">
+            <span class="dash-metric-dot" style="background:var(--warn);"></span>
+            <span class="dash-metric-label">Blink rate</span>
+            <span class="dash-metric-value">18/min</span>
+          </div>
+          <div class="dash-metric">
+            <span class="dash-metric-dot" style="background:var(--accent);"></span>
+            <span class="dash-metric-label">Micro-sleeps</span>
+            <span class="dash-metric-value">0</span>
+          </div>
+          <div class="dash-status">
+            <span class="dash-status-dot"></span>
+            All systems normal
+          </div>
+        </div>
+      </div>
+
+      <div class="dash-metrics-mobile">
+        <div class="dash-metric-mini">
+          <span class="dash-metric-mini-value" style="color:var(--ok);">0.09</span>
+          <span class="dash-metric-mini-label">PERCLOS</span>
+        </div>
+        <div class="dash-metric-mini">
+          <span class="dash-metric-mini-value" style="color:var(--warn);">18/m</span>
+          <span class="dash-metric-mini-label">Blink rate</span>
+        </div>
+        <div class="dash-metric-mini">
+          <span class="dash-metric-mini-value" style="color:var(--accent);">0</span>
+          <span class="dash-metric-mini-label">Micro-sleeps</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== WHAT IT IS ===== -->
+<section class="section section-divider" id="what">
+  <div class="container">
+    <div class="what-grid">
+      <p class="section-label" data-animate="fade-up">What it is</p>
+      <div>
+        <p class="what-headline" data-animate="fade-up">Mental fatigue is the leading cause of error in high-stakes work. Pilots, surgeons, drivers, and operators face the same invisible threat: attention decay they cannot feel.</p>
+        <p class="what-body" data-animate="fade-up">FatigueSense tracks subtle eye-movement biomarkers through a standard webcam. PERCLOS, blink rate, micro-sleep duration - turned from invisible physiology into a readable, actionable signal. No wearables, no calibration, no configuration.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== HOW IT WORKS ===== -->
+<section class="section section-divider" id="how">
+  <div class="container">
+    <div class="steps-grid">
+      <p class="section-label" data-animate="fade-up">How it works</p>
+      <div>
+        <div class="steps-row">
+          <div class="step" data-animate="fade-up">
+            <p class="step-num">Step 1</p>
+            <div class="step-icon"><svg viewBox="0 0 48 48"><use href="#icon-monitor" /></svg></div>
+            <h3 class="step-title">Open FatigueSense</h3>
+            <p class="step-desc">Launch in your browser. No install, no account, no configuration needed.</p>
+          </div>
+          <div class="step" data-animate="fade-up">
+            <p class="step-num">Step 2</p>
+            <div class="step-icon"><svg viewBox="0 0 48 48"><use href="#icon-camera" /></svg></div>
+            <h3 class="step-title">Allow webcam access</h3>
+            <p class="step-desc">Grant camera permission once. The feed processes locally and discards in real time, frame by frame.</p>
+          </div>
+          <div class="step" data-animate="fade-up">
+            <p class="step-num">Step 3</p>
+            <div class="step-icon"><svg viewBox="0 0 48 48"><use href="#icon-chart" /></svg></div>
+            <h3 class="step-title">Read your fatigue score</h3>
+            <p class="step-desc">A live score and trend chart shows your cognitive state. Get alerts before fatigue compromises your attention.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== WHY IT MATTERS ===== -->
+<section class="section section-divider" id="features">
+  <div class="container">
+    <div class="what-grid">
+      <p class="section-label" data-animate="fade-up">Why it matters</p>
+      <div>
+        <div class="features-grid">
+          <div class="feature-card" data-animate="fade-up">
+            <div class="feature-icon"><svg viewBox="0 0 48 48"><use href="#icon-eye" /></svg></div>
+            <h3 class="feature-title">Tracks what you cannot feel</h3>
+            <p class="feature-desc">PERCLOS, blink rate, and micro-sleep patterns reveal fatigue 15-30 minutes before you notice it yourself.</p>
+          </div>
+          <div class="feature-card" data-animate="fade-up">
+            <div class="feature-icon"><svg viewBox="0 0 48 48"><use href="#icon-camera" /></svg></div>
+            <h3 class="feature-title">Your webcam is the only hardware</h3>
+            <p class="feature-desc">No wearables, no sensors, no headsets. If your laptop has a camera, you are ready.</p>
+          </div>
+          <div class="feature-card" data-animate="fade-up">
+            <div class="feature-icon"><svg viewBox="0 0 48 48"><use href="#icon-bell" /></svg></div>
+            <h3 class="feature-title">Alerts before the critical moment</h3>
+            <p class="feature-desc">Configurable thresholds for early, mid, and critical fatigue. Take a break, switch tasks, or hand off.</p>
+          </div>
+          <div class="feature-card" data-animate="fade-up">
+            <div class="feature-icon"><svg viewBox="0 0 48 48"><use href="#icon-chart" /></svg></div>
+            <h3 class="feature-title">Session history with trend analysis</h3>
+            <p class="feature-desc">Review fatigue patterns across days, compare sessions, and understand your personal cognitive rhythm.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== PRIVACY ===== -->
+<section class="section-xl section-divider privacy" id="privacy">
+  <div class="container">
+    <div class="privacy-mark" data-animate="scale-in">
+      <svg viewBox="0 0 96 96"><use href="#mark-local-sentinel" /></svg>
+    </div>
+    <p class="privacy-headline" data-animate="fade-up">Your face never leaves your machine.</p>
+    <p class="privacy-body" data-animate="fade-up">FatigueSense runs entirely on your computer. The camera feed processes locally and discards instantly, frame by frame. No cloud uploads, no data storage, no account required. Privacy is not a feature we added. It is the architecture we chose.</p>
+    <div class="privacy-points" data-animate="fade-up">
+      <div class="privacy-point"><span class="privacy-point-dot"></span>100% local processing</div>
+      <div class="privacy-point"><span class="privacy-point-dot"></span>No cloud uploads</div>
+      <div class="privacy-point"><span class="privacy-point-dot"></span>No data storage</div>
+      <div class="privacy-point"><span class="privacy-point-dot"></span>No account required</div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== TEAM ===== -->
+<section class="section-lg section-divider" id="team">
+  <div class="container">
+    <div class="what-grid">
+      <p class="section-label" data-animate="fade-up">Team</p>
+      <div>
+        <div class="team-grid">
+          <div class="team-card" data-animate="fade-up">
+            <div class="team-avatar">AE</div>
+            <div class="team-info">
+              <p class="team-name">Alhassani Engineering</p>
+              <p class="team-role">Project Lead &amp; Research</p>
+              <a href="https://github.com/alhassani-engineering" target="_blank" rel="noopener" class="team-gh">
+                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>
+                alhassani-engineering
+              </a>
+            </div>
+          </div>
+          <div class="team-card" data-animate="fade-up">
+            <div class="team-avatar">JS</div>
+            <div class="team-info">
+              <p class="team-name">JlordS32</p>
+              <p class="team-role">Development &amp; Engineering</p>
+              <a href="https://github.com/JlordS32" target="_blank" rel="noopener" class="team-gh">
+                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>
+                JlordS32
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== FEEDBACK ===== -->
+<section class="section-lg section-divider feedback" id="feedback">
+  <div class="container">
+    <p class="section-label" data-animate="fade-up">Feedback</p>
+    <p class="feedback-headline" data-animate="fade-up">Saw the showcase? Tell us what you think.</p>
+    <p class="feedback-sub" data-animate="fade-up">Your thoughts help shape what FatigueSense becomes. Questions, ideas, or criticism - all welcome.</p>
+    <form class="feedback-form" data-animate="fade-up" onsubmit="handleFeedback(event)">
+      <textarea class="feedback-textarea" id="feedback-msg" placeholder="What did you think of FatigueSense? Any features you would want to see?" required aria-label="Your feedback"></textarea>
+      <div class="feedback-submit-row">
+        <input class="signup-input" type="email" id="feedback-email" placeholder="you@example.com" aria-label="Email address" autocomplete="email" />
+        <button class="feedback-submit-btn" type="submit" id="feedback-btn">Send feedback</button>
+      </div>
+    </form>
+    <p class="feedback-confirm" id="feedback-confirm">Thanks for your feedback. We appreciate it.</p>
+  </div>
+</section>
+
+<!-- ===== EMAIL SIGNUP ===== -->
+<section class="section-xl signup" id="signup">
+  <div class="container">
+    <p class="signup-label" data-animate="fade-up">Still in development.</p>
+    <p class="signup-sub" data-animate="fade-up">FatigueSense is not yet available for public use. Leave your email and we will notify you when it launches. One email, no spam.</p>
+    <form class="signup-form" data-animate="fade-up" onsubmit="handleSignup(event)">
+      <input class="signup-input" type="email" id="email-input" placeholder="you@example.com" required aria-label="Email address" autocomplete="email" />
+      <button class="signup-btn" type="submit" id="signup-btn">Stay updated</button>
+    </form>
+    <p class="signup-confirm" id="signup-confirm">You are on the list. We will be in touch.</p>
+  </div>
+</section>
+
+<!-- ===== FOOTER ===== -->
+<footer class="footer">
+  <div class="container">
+    <div class="footer-inner">
+      <div class="footer-logo">
+        <svg width="24" height="24" viewBox="0 0 96 96" fill="none">
+          <rect width="96" height="96" rx="22" fill="url(#app-logo-grad)" />
+          <rect x="0.5" y="0.5" width="95" height="95" rx="21.5" fill="none" stroke="#FFFFFF" stroke-opacity="0.18" />
+          <g stroke="#FFFFFF" fill="none" stroke-linecap="round" stroke-linejoin="round" transform="translate(48 48) scale(0.68) translate(-48 -48)">
+            <path d="M26 38 H52 L26 64 H52" stroke-width="6" />
+            <path d="M56 22 H74 L56 40 H74" stroke-width="4.8" stroke-opacity="0.7" />
+          </g>
+        </svg>
+        <span class="footer-logo-text">FatigueSense</span>
+      </div>
+      <div class="footer-links">
+        <a href="#">Research papers</a>
+        <a href="#">GitHub</a>
+        <a href="#">Twitter / X</a>
+        <a href="mailto:hello@fatiguesense.app">hello@fatiguesense.app</a>
+      </div>
+      <p class="footer-copy">Built for the people who cannot afford to drift.</p>
+    </div>
+  </div>
+</footer>
+
+<!-- GSAP -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+
+<script>
+gsap.registerPlugin(ScrollTrigger);
+
+const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+if (!prefersReducedMotion) {
+  /* === HERO LOAD SEQUENCE === */
+  const heroTl = gsap.timeline({ defaults: { ease: 'power3.out' } });
+
+  heroTl
+    .to('[data-animate="fade-up"]', {
+      opacity: 1,
+      y: 0,
+      duration: 0.8,
+      stagger: 0.12,
+    })
+    .to('[data-animate="rise"]', {
+      opacity: 1,
+      y: 0,
+      duration: 1.0,
+      ease: 'power2.out',
+    }, '-=0.3');
+
+  /* Set initial state for all animated elements */
+  gsap.set('[data-animate="fade-up"]', { opacity: 0, y: 28 });
+  gsap.set('[data-animate="rise"]', { opacity: 0, y: 60, scale: 0.96 });
+  gsap.set('[data-animate="scale-in"]', { opacity: 0, scale: 0.8 });
+
+  /* === DASHBOARD MOCKUP PARALLAX PIN === */
+  ScrollTrigger.create({
+    trigger: '#hero',
+    start: 'top top',
+    end: 'bottom top',
+    onUpdate: (self) => {
+      const progress = self.progress;
+      gsap.to('.hero-mockup-wrapper', {
+        y: progress * 40,
+        scale: 1 - (progress * 0.03),
+        opacity: 1 - (progress * 0.6),
+        duration: 0,
+        overwrite: true,
+      });
+    },
+  });
+
+  /* === SCROLL REVEAL FOR SECTIONS === */
+  const revealElements = gsap.utils.toArray('[data-animate]');
+  revealElements.forEach((el) => {
+    if (el.closest('#hero')) return;
+    const animType = el.dataset.animate;
+
+    ScrollTrigger.create({
+      trigger: el,
+      start: 'top bottom-=80',
+      once: true,
+      onEnter: () => {
+        if (animType === 'fade-up') {
+          gsap.to(el, { opacity: 1, y: 0, duration: 0.75, ease: 'power3.out' });
+        } else if (animType === 'scale-in') {
+          gsap.to(el, { opacity: 1, scale: 1, duration: 0.7, ease: 'back.out(1.4)' });
+        }
+      },
+    });
+  });
+
+  /* === FEATURE CARDS STAGGER === */
+  ScrollTrigger.create({
+    trigger: '.features-grid',
+    start: 'top bottom-=60',
+    once: true,
+    onEnter: () => {
+      gsap.to('.feature-card', {
+        opacity: 1,
+        y: 0,
+        duration: 0.6,
+        stagger: 0.1,
+        ease: 'power3.out',
+      });
+    },
+  });
+  gsap.set('.feature-card', { opacity: 0, y: 24 });
+
+  /* === STEPS STAGGER === */
+  ScrollTrigger.create({
+    trigger: '.steps-row',
+    start: 'top bottom-=60',
+    once: true,
+    onEnter: () => {
+      gsap.to('.step', {
+        opacity: 1,
+        y: 0,
+        duration: 0.6,
+        stagger: 0.12,
+        ease: 'power3.out',
+      });
+    },
+  });
+  gsap.set('.step', { opacity: 0, y: 24 });
+
+  /* === PRIVACY POINTS STAGGER === */
+  ScrollTrigger.create({
+    trigger: '.privacy-points',
+    start: 'top bottom-=40',
+    once: true,
+    onEnter: () => {
+      gsap.to('.privacy-point', {
+        opacity: 1,
+        y: 0,
+        duration: 0.5,
+        stagger: 0.08,
+        ease: 'power3.out',
+      });
+    },
+  });
+  gsap.set('.privacy-point', { opacity: 0, y: 12 });
+
+  /* === AMBIENT BLOB MOUSE PARALLAX === */
+  let mouseX = 0, mouseY = 0;
+  document.addEventListener('mousemove', (e) => {
+    mouseX = (e.clientX / window.innerWidth - 0.5) * 2;
+    mouseY = (e.clientY / window.innerHeight - 0.5) * 2;
+  });
+
+  gsap.ticker.add(() => {
+    gsap.to('.ambient-blob-a', {
+      x: mouseX * 30,
+      y: mouseY * 20,
+      duration: 2.5,
+      ease: 'power2.out',
+      overwrite: true,
+    });
+    gsap.to('.ambient-blob-b', {
+      x: mouseX * -20,
+      y: mouseY * -25,
+      duration: 3,
+      ease: 'power2.out',
+      overwrite: true,
+    });
+  });
+} else {
+  /* Show everything statically for reduced-motion */
+  gsap.set('[data-animate]', { opacity: 1, y: 0, scale: 1 });
+}
+</script>
+
+<script>
+/* === NAVIGATION === */
+const siteNav = document.getElementById('site-nav');
+const hamburger = document.getElementById('hamburger');
+const mobileMenu = document.getElementById('mobile-menu');
+const menuClose = document.getElementById('menu-close');
+
+// Scroll detection for nav background
+let navScrolled = false;
+window.addEventListener('scroll', () => {
+  const scrolled = window.scrollY > 20;
+  if (scrolled !== navScrolled) {
+    navScrolled = scrolled;
+    siteNav.classList.toggle('scrolled', scrolled);
+  }
+}, { passive: true });
+
+// Hamburger toggle
+hamburger.addEventListener('click', () => mobileMenu.classList.add('open'));
+menuClose.addEventListener('click', () => mobileMenu.classList.remove('open'));
+document.querySelectorAll('[data-nav-close]').forEach(link => {
+  link.addEventListener('click', () => mobileMenu.classList.remove('open'));
+});
+
+// Smooth scroll for nav links
+document.querySelectorAll('.site-nav a[href^="#"], .mobile-menu a[href^="#"]').forEach(anchor => {
+  anchor.addEventListener('click', function(e) {
+    const target = document.querySelector(this.getAttribute('href'));
+    if (target) {
+      e.preventDefault();
+      target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  });
+});
+
+/* === FORM HANDLERS === */
+function handleHeroSignup(event) {
+  event.preventDefault();
+  const input = document.getElementById('hero-email');
+  const btn = document.getElementById('hero-btn');
+  const confirm = document.getElementById('hero-confirm');
+  btn.disabled = true;
+  btn.textContent = 'Submitting...';
+  setTimeout(() => {
+    btn.textContent = "You're in";
+    btn.style.background = 'var(--ok)';
+    confirm.classList.add('show');
+    input.value = '';
+  }, 800);
+}
+
+function handleSignup(event) {
+  event.preventDefault();
+  const input = document.getElementById('email-input');
+  const btn = document.getElementById('signup-btn');
+  const confirm = document.getElementById('signup-confirm');
+  btn.disabled = true;
+  btn.textContent = 'Submitting...';
+  setTimeout(() => {
+    btn.textContent = "You're in";
+    btn.style.background = 'var(--ok)';
+    confirm.classList.add('show');
+    input.value = '';
+  }, 800);
+}
+
+function handleFeedback(event) {
+  event.preventDefault();
+  const btn = document.getElementById('feedback-btn');
+  const confirm = document.getElementById('feedback-confirm');
+  const msg = document.getElementById('feedback-msg');
+  const email = document.getElementById('feedback-email');
+  btn.disabled = true;
+  btn.textContent = 'Sending...';
+  setTimeout(() => {
+    btn.textContent = 'Sent';
+    btn.style.background = 'var(--ok)';
+    confirm.classList.add('show');
+    msg.value = '';
+    email.value = '';
+  }, 800);
+}
+</script>
+
+</body>
+</html>
