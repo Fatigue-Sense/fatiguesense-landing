@@ -52,7 +52,7 @@ export default function useScrollReveal() {
 			});
 		});
 
-		// Feature cards stagger
+		/* Feature cards stagger */
 		const featuresGrid = document.querySelector(".features-grid");
 		if (featuresGrid) {
 			ScrollTrigger.create({
@@ -72,7 +72,7 @@ export default function useScrollReveal() {
 			gsap.set(".feature-card", { opacity: 0, y: 24 });
 		}
 
-		// Steps stagger
+		/* Steps stagger */
 		const stepsRow = document.querySelector(".steps-row");
 		if (stepsRow) {
 			ScrollTrigger.create({
@@ -92,7 +92,7 @@ export default function useScrollReveal() {
 			gsap.set(".step", { opacity: 0, y: 24 });
 		}
 
-		// Privacy points stagger
+		/* Privacy points stagger */
 		const privacyPoints = document.querySelector(".privacy-points");
 		if (privacyPoints) {
 			ScrollTrigger.create({
@@ -110,6 +110,45 @@ export default function useScrollReveal() {
 				},
 			});
 			gsap.set(".privacy-point", { opacity: 0, y: 12 });
+		}
+
+		/* Team cards stagger */
+		const teamGrid = document.querySelector(".team-grid");
+		if (teamGrid) {
+			ScrollTrigger.create({
+				trigger: teamGrid,
+				start: "top bottom-=60",
+				once: true,
+				onEnter: () => {
+					gsap.to(".team-card", {
+						opacity: 1,
+						y: 0,
+						duration: 0.5,
+						stagger: 0.1,
+						ease: "power3.out",
+					});
+				},
+			});
+			gsap.set(".team-card", { opacity: 0, y: 24 });
+		}
+
+		/* Footer reveal */
+		const footer = document.querySelector("footer");
+		if (footer) {
+			ScrollTrigger.create({
+				trigger: footer,
+				start: "top bottom-=40",
+				once: true,
+				onEnter: () => {
+					gsap.to(footer, {
+						opacity: 1,
+						y: 0,
+						duration: 0.8,
+						ease: "power3.out",
+					});
+				},
+			});
+			gsap.set(footer, { opacity: 0, y: 20 });
 		}
 
 		return () => {

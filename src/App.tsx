@@ -3,7 +3,6 @@ import AmbientBlobs from "./components/AmbientBlobs";
 import Nav from "./components/Nav";
 import Hero from "./components/Hero";
 import WhatItIs from "./components/WhatItIs";
-import HowItWorks from "./components/HowItWorks";
 import Features from "./components/Features";
 import Privacy from "./components/Privacy";
 import Team from "./components/Team";
@@ -22,7 +21,6 @@ export default function App() {
 			<Nav />
 			<Hero />
 			<WhatItIs />
-			<HowItWorks />
 			<Features />
 			<Privacy />
 			<Team />

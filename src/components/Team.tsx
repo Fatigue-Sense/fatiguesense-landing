@@ -1,15 +1,18 @@
 const MEMBERS = [
 	{
-		initials: "AE",
-		name: "Alhassani Engineering",
-		role: "Project Lead & Research",
-		gh: "alhassani-engineering",
+		gh: "JlordS32",
+		name: "Jaylou Rasonabe",
+		role: "Project Lead & Engineering",
 	},
 	{
-		initials: "JS",
-		name: "JlordS32",
+		gh: "alhassani-engineering",
+		name: "Ahmad Alhassani",
+		role: "Development & Research",
+	},
+	{
+		gh: "duyNguyen16",
+		name: "Khanh Duy Nguyen",
 		role: "Development & Engineering",
-		gh: "JlordS32",
 	},
 ];
 
@@ -28,16 +31,18 @@ export default function Team() {
 						Team
 					</p>
 					<div>
-						<div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+						<div className="team-grid grid grid-cols-1 sm:grid-cols-2 gap-5">
 							{MEMBERS.map((m) => (
 								<div
-									className="bg-bg1 border border-line rounded-xl p-7 sm:px-6 flex items-center gap-[18px] hover:border-line2 hover:bg-bg2 transition-[border-color,background] duration-300"
+									className="team-card bg-bg1 border border-line rounded-xl p-7 sm:px-6 flex items-center gap-[18px] hover:border-line2 hover:bg-bg2 transition-[border-color,background] duration-300"
 									key={m.gh}
 									data-animate="fade-up"
 								>
-									<div className="w-[52px] h-[52px] rounded-full bg-bg3 border border-line2 flex items-center justify-center shrink-0 font-mono text-lg font-semibold text-accent">
-										{m.initials}
-									</div>
+									<img
+										src={`https://github.com/${m.gh}.png`}
+										alt={m.name}
+										className="w-[52px] h-[52px] rounded-full shrink-0"
+									/>
 									<div className="min-w-0">
 										<p className="font-display text-base font-semibold text-text1 tracking-[-0.02em] mb-1">
 											{m.name}
