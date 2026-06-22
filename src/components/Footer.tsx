@@ -11,34 +11,14 @@ export default function Footer() {
 							FatigueSense
 						</span>
 					</div>
-					<div className="flex flex-wrap gap-4 sm:gap-x-7">
-						<a
-							href="#what"
-							className="font-display text-[13px] text-text3 hover:text-text1 transition-colors duration-200"
-						>
-							About
-						</a>
-						<a
-							href="#privacy"
-							className="font-display text-[13px] text-text3 hover:text-text1 transition-colors duration-200"
-						>
-							Privacy
-						</a>
-						<a
-							href="https://github.com/JlordS32"
-							target="_blank"
-							rel="noopener noreferrer"
-							className="font-display text-[13px] text-text3 hover:text-text1 transition-colors duration-200"
-						>
-							GitHub
-						</a>
-						<a
-							href="mailto:hello@jaylou.me"
-							className="font-display text-[13px] text-text3 hover:text-text1 transition-colors duration-200"
-						>
-							hello@jaylou.me
-						</a>
-					</div>
+					<a
+						href="https://github.com/Fatigue-Sense"
+						target="_blank"
+						rel="noopener noreferrer"
+						className="font-display text-[13px] text-text3 hover:text-text1 transition-colors duration-200"
+					>
+						GitHub
+					</a>
 					<p className="font-display text-[12px] text-text4 max-w-[240px] sm:text-right leading-snug">
 						Built for people who cannot afford to drift.
 					</p>
