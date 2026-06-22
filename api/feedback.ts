@@ -2,7 +2,6 @@ import type { VercelRequest, VercelResponse } from "@vercel/node";
 import { loadLocalEnv } from "./_lib/env";
 import { getSupabase } from "./_lib/supabase";
 import { errorResponse, logError, logInfo } from "./_lib/log";
-import { sendFeedbackNotification } from "./_lib/resend";
 import {
 	handleOptions,
 	isValidEmail,
@@ -78,14 +77,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 		}
 
 		logInfo(ROUTE, "Insert succeeded");
-
-		const notified = await sendFeedbackNotification({
-			rating: ratingNum,
-			message: message.trim(),
-			submitterEmail: submitterEmail ?? undefined,
-		});
-		logInfo(ROUTE, "Owner notification", { sent: notified });
-
 		logInfo(ROUTE, "Request completed successfully");
 		return res.status(200).json({ ok: true });
 	} catch (err) {

@@ -2,7 +2,6 @@ import type { VercelRequest, VercelResponse } from "@vercel/node";
 import { loadLocalEnv } from "./_lib/env";
 import { getSupabase } from "./_lib/supabase";
 import { errorResponse, logError, logInfo } from "./_lib/log";
-import { sendWaitlistConfirmation } from "./_lib/resend";
 import {
 	handleOptions,
 	isValidEmail,
@@ -72,17 +71,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 		}
 
 		logInfo(ROUTE, "Insert succeeded", { id: data?.id });
-
-		const sent = await sendWaitlistConfirmation(normalized);
-		logInfo(ROUTE, "Confirmation email", { sent, to: normalized });
-
-		if (sent && data?.id) {
-			await supabase
-				.from("waitlist_signups")
-				.update({ confirmation_sent_at: new Date().toISOString() })
-				.eq("id", data.id);
-		}
-
 		logInfo(ROUTE, "Request completed successfully");
 		return res.status(200).json({ ok: true });
 	} catch (err) {

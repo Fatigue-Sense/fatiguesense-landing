@@ -149,7 +149,9 @@ export default function Hero() {
 				)}
 				{submitted && !error && (
 					<p className="font-display text-sm text-ok text-center mt-2.5">
-						You are on the list. We will be in touch.
+						You&rsquo;re on the list. No confirmation email will be sent
+						&mdash; double-check your address above. We will reach out
+						when we launch.
 					</p>
 				)}
 			</div>
