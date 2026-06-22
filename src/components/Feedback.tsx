@@ -69,12 +69,6 @@ export default function Feedback() {
 		>
 			<div className="w-[min(1200px,calc(100vw-48px))] mx-auto">
 				<p
-					className="font-mono text-[11px] font-medium tracking-[0.1em] uppercase text-text3"
-					data-animate="fade-up"
-				>
-					Feedback
-				</p>
-				<p
 					className="font-display text-[clamp(22px,3.5vw,30px)] font-semibold leading-[1.25] tracking-[-0.03em] text-text1 mb-3.5"
 					data-animate="fade-up"
 				>

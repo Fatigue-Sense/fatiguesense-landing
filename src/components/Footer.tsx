@@ -13,32 +13,34 @@ export default function Footer() {
 					</div>
 					<div className="flex flex-wrap gap-4 sm:gap-x-7">
 						<a
-							href="#"
+							href="#what"
 							className="font-display text-[13px] text-text3 hover:text-text1 transition-colors duration-200"
 						>
-							Research papers
+							About
 						</a>
 						<a
-							href="#"
+							href="#privacy"
+							className="font-display text-[13px] text-text3 hover:text-text1 transition-colors duration-200"
+						>
+							Privacy
+						</a>
+						<a
+							href="https://github.com/JlordS32"
+							target="_blank"
+							rel="noopener noreferrer"
 							className="font-display text-[13px] text-text3 hover:text-text1 transition-colors duration-200"
 						>
 							GitHub
 						</a>
 						<a
-							href="#"
+							href="mailto:hello@jaylou.me"
 							className="font-display text-[13px] text-text3 hover:text-text1 transition-colors duration-200"
 						>
-							Twitter / X
-						</a>
-						<a
-							href="mailto:hello@fatiguesense.app"
-							className="font-display text-[13px] text-text3 hover:text-text1 transition-colors duration-200"
-						>
-							hello@fatiguesense.app
+							hello@jaylou.me
 						</a>
 					</div>
-					<p className="font-mono text-[11px] text-text4">
-						Built for the people who cannot afford to drift.
+					<p className="font-display text-[12px] text-text4 max-w-[240px] sm:text-right leading-snug">
+						Built for people who cannot afford to drift.
 					</p>
 				</div>
 			</div>

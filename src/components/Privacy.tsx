@@ -1,3 +1,10 @@
+const POINTS = [
+	"100% local processing",
+	"No cloud uploads",
+	"No data storage",
+	"No account required",
+];
+
 export default function Privacy() {
 	return (
 		<section
@@ -5,7 +12,10 @@ export default function Privacy() {
 			id="privacy"
 		>
 			<div className="w-[min(1200px,calc(100vw-48px))] mx-auto">
-				<div className="w-[60px] h-[60px] mx-auto mb-8 text-ok" data-animate="scale-in">
+				<div
+					className="w-[60px] h-[60px] mx-auto mb-8 text-ok"
+					data-animate="scale-in"
+				>
 					<svg viewBox="0 0 96 96" className="w-full h-full">
 						<use href="#mark-local-sentinel" />
 					</svg>
@@ -20,33 +30,24 @@ export default function Privacy() {
 					className="font-display text-[clamp(15px,2vw,17px)] leading-[1.7] text-text2 max-w-[600px] mx-auto mb-10"
 					data-animate="fade-up"
 				>
-					FatigueSense runs entirely on your computer. The camera
-					feed processes locally and discards instantly, frame by
-					frame. No cloud uploads, no data storage, no account
-					required. Privacy is not a feature we added. It is the
-					architecture we chose.
+					FatigueSense runs entirely on your computer. The camera feed
+					processes locally and discards instantly, frame by frame. No
+					cloud uploads, no data storage, no account required. Privacy
+					is not a feature we added. It is the architecture we chose.
 				</p>
-				<div
-					className="flex flex-wrap justify-center gap-4 sm:gap-x-8 max-w-[620px] mx-auto"
+				<ul
+					className="grid grid-cols-1 sm:grid-cols-2 gap-x-10 gap-y-3 max-w-[480px] mx-auto text-left list-none p-0 m-0"
 					data-animate="fade-up"
 				>
-					<div className="flex items-center gap-2.5 font-mono text-xs font-medium text-text2 tracking-[0.02em]">
-						<span className="w-1.5 h-1.5 rounded-full bg-ok shrink-0 shadow-[0_0_8px_rgba(94,200,152,0.3)]" />
-						100% local processing
-					</div>
-					<div className="flex items-center gap-2.5 font-mono text-xs font-medium text-text2 tracking-[0.02em]">
-						<span className="w-1.5 h-1.5 rounded-full bg-ok shrink-0 shadow-[0_0_8px_rgba(94,200,152,0.3)]" />
-						No cloud uploads
-					</div>
-					<div className="flex items-center gap-2.5 font-mono text-xs font-medium text-text2 tracking-[0.02em]">
-						<span className="w-1.5 h-1.5 rounded-full bg-ok shrink-0 shadow-[0_0_8px_rgba(94,200,152,0.3)]" />
-						No data storage
-					</div>
-					<div className="flex items-center gap-2.5 font-mono text-xs font-medium text-text2 tracking-[0.02em]">
-						<span className="w-1.5 h-1.5 rounded-full bg-ok shrink-0 shadow-[0_0_8px_rgba(94,200,152,0.3)]" />
-						No account required
-					</div>
-				</div>
+					{POINTS.map((point) => (
+						<li
+							key={point}
+							className="font-display text-sm text-text2 py-1 border-b border-line last:border-b-0 sm:[&:nth-last-child(-n+2)]:border-b-0"
+						>
+							{point}
+						</li>
+					))}
+				</ul>
 			</div>
 		</section>
 	);

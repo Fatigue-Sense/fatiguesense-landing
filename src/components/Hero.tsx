@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import AppLogo from "./AppLogo";
 import { submitWaitlist } from "../lib/api";
 import { useFormSubmit } from "../hooks/useFormSubmit";
 
@@ -15,11 +14,10 @@ const btnCls =
 
 export default function Hero() {
 	const [email, setEmail] = useState("");
-	const logoRef = useRef<HTMLDivElement>(null);
 	const headlineRef = useRef<HTMLHeadingElement>(null);
 	const subtitleRef = useRef<HTMLParagraphElement>(null);
 	const formRef = useRef<HTMLFormElement>(null);
-	const mockupRef = useRef<HTMLDivElement>(null);
+	const previewRef = useRef<HTMLDivElement>(null);
 
 	const submitHero = useCallback(
 		async (address: string) => submitWaitlist(address, "hero"),
@@ -39,24 +37,15 @@ export default function Hero() {
 		).matches;
 		if (prefersReducedMotion) return;
 
-		/* Hero load sequence */
 		const tl = gsap.timeline({ defaults: { ease: "power3.out" } });
 
-		tl.to(
-			[
-				logoRef.current,
-				headlineRef.current,
-				subtitleRef.current,
-				formRef.current,
-			],
-			{
-				opacity: 1,
-				y: 0,
-				duration: 0.8,
-				stagger: 0.12,
-			},
-		).to(
-			mockupRef.current,
+		tl.to([headlineRef.current, subtitleRef.current, formRef.current], {
+			opacity: 1,
+			y: 0,
+			duration: 0.8,
+			stagger: 0.12,
+		}).to(
+			previewRef.current,
 			{
 				opacity: 1,
 				y: 0,
@@ -67,25 +56,19 @@ export default function Hero() {
 			"-=0.3",
 		);
 
-		gsap.set(
-			[
-				logoRef.current,
-				headlineRef.current,
-				subtitleRef.current,
-				formRef.current,
-			],
-			{ opacity: 0, y: 28 },
-		);
-		gsap.set(mockupRef.current, { opacity: 0, y: 60, scale: 0.96 });
+		gsap.set([headlineRef.current, subtitleRef.current, formRef.current], {
+			opacity: 0,
+			y: 28,
+		});
+		gsap.set(previewRef.current, { opacity: 0, y: 60, scale: 0.96 });
 
-		/* Mockup parallax on scroll */
 		const st = ScrollTrigger.create({
 			trigger: "#hero",
 			start: "top top",
 			end: "bottom top",
 			onUpdate: (self) => {
 				const p = self.progress;
-				gsap.to(mockupRef.current, {
+				gsap.to(previewRef.current, {
 					y: p * 40,
 					scale: 1 - p * 0.03,
 					opacity: 1 - p * 0.6,
@@ -112,16 +95,6 @@ export default function Hero() {
 			id="hero"
 		>
 			<div className="text-center max-w-[720px] px-6 relative z-[2]">
-				<div
-					className="inline-flex items-center gap-3 mb-[clamp(32px,6vh,52px)] opacity-0"
-					ref={logoRef}
-				>
-					<AppLogo size={48} />
-					<span className="font-display text-[22px] font-bold tracking-[-0.04em] text-text1">
-						Fatigue<span className="text-text2 font-medium">Sense</span>
-					</span>
-				</div>
-
 				<h1
 					className="font-display text-[clamp(32px,5.8vw,56px)] font-semibold leading-[1.08] tracking-[-0.04em] text-text1 mb-[clamp(20px,3vh,32px)] opacity-0"
 					ref={headlineRef}
@@ -134,18 +107,20 @@ export default function Hero() {
 					className="font-display text-[clamp(16px,2.1vw,18px)] leading-[1.65] text-text2 max-w-[540px] mx-auto mb-[clamp(36px,5vh,52px)] opacity-0"
 					ref={subtitleRef}
 				>
-					Real-time cognitive state tracking through your webcam.
-					No wearables, no hardware. Currently in development - not
-					yet available for public use.
+					Real-time cognitive state tracking through your webcam. No
+					wearables, no hardware. Currently in development — not yet
+					available for public use.
 				</p>
 
 				<form
 					className="flex flex-col sm:flex-row gap-2.5 sm:gap-0 max-w-[420px] mx-auto opacity-0"
+					id="hero-waitlist"
 					ref={formRef}
 					onSubmit={handleSubmit}
 				>
 					<input
 						className={inputCls}
+						id="waitlist-email"
 						type="email"
 						placeholder="you@example.com"
 						required
@@ -180,170 +155,64 @@ export default function Hero() {
 			</div>
 
 			<div
-				className="w-full max-w-[920px] mt-[clamp(48px,8vh,80px)] px-6 relative z-[1] opacity-0"
-				ref={mockupRef}
+				className="w-full max-w-[640px] mt-[clamp(48px,8vh,80px)] px-6 relative z-[1] opacity-0"
+				ref={previewRef}
 			>
-				<div className="dash-mockup bg-bg2 border border-line rounded-t-[14px] border-b-0 overflow-hidden">
-					<div className="flex items-center gap-2.5 py-3.5 px-[18px] border-b border-line bg-bg1">
-						<div className="flex gap-[7px] shrink-0">
-							<span className="dash-chrome-dot w-[11px] h-[11px] rounded-full" />
-							<span className="dash-chrome-dot w-[11px] h-[11px] rounded-full" />
-							<span className="dash-chrome-dot w-[11px] h-[11px] rounded-full" />
-						</div>
-						<div className="flex-1 bg-bg rounded-[5px] py-[5px] px-3 font-mono text-[11px] text-text3 text-center">
-							app.fatiguesense.dev
-						</div>
-					</div>
-
-					<div className="grid grid-cols-1 sm:grid-cols-[130px_1fr] md:grid-cols-[130px_1fr_190px] gap-[18px] sm:gap-6 md:gap-7 p-5 sm:p-6 md:p-[32px_28px_40px]">
-						<div className="flex flex-col items-center gap-2.5">
-							<div className="relative w-24 h-24">
-								<svg viewBox="0 0 96 96" className="w-full h-full">
-									<circle
-										cx="48"
-										cy="48"
-										r="40"
-										fill="none"
-										stroke="#1b1d22"
-										strokeWidth="7"
-									/>
-									<circle
-										cx="48"
-										cy="48"
-										r="40"
-										fill="none"
-										stroke="#5ec898"
-										strokeWidth="7"
-										strokeDasharray="188 63"
-										strokeDashoffset="-30"
-										strokeLinecap="round"
-										transform="rotate(-90 48 48)"
-									/>
-									<text
-										x="48"
-										y="44"
-										textAnchor="middle"
-										fill="#e8e9ec"
-										fontFamily="Space Grotesk, sans-serif"
-										fontSize="19"
-										fontWeight="600"
-									>
-										76
-									</text>
-									<text
-										x="48"
-										y="60"
-										textAnchor="middle"
-										fill="#6a6c73"
-										fontFamily="IBM Plex Mono, monospace"
-										fontSize="10"
-										fontWeight="500"
-									>
-										SCORE
-									</text>
-								</svg>
-							</div>
-							<span className="font-mono text-[11px] font-medium tracking-[0.08em] uppercase text-text3">
-								Engaged
-							</span>
-						</div>
-
-						<div className="dash-feed relative bg-bg border border-line rounded-[10px] aspect-[4/3] flex flex-col items-center justify-center gap-2.5 overflow-hidden">
-							<div className="w-9 h-9 text-text4 relative z-[1]">
-								<svg viewBox="0 0 48 48">
-									<use href="#icon-camera" />
-								</svg>
-							</div>
-							<span className="font-mono text-[10px] font-medium tracking-[0.06em] text-text4 uppercase relative z-[1]">
-								Live feed
-							</span>
-							<div className="flex items-center gap-[7px] relative z-[1]">
-								<span className="dash-feed-pulse w-[7px] h-[7px] rounded-full bg-ok" />
-								<span className="font-mono text-[10px] text-text3">
-									Active
-								</span>
-							</div>
-						</div>
-
-						<div className="hidden md:flex flex-col gap-4 justify-center">
-							<div className="flex items-center gap-2.5">
-								<span
-									className="w-[7px] h-[7px] rounded-full shrink-0"
-									style={{ background: "var(--color-ok)" }}
-								/>
-								<span className="font-display text-[13px] text-text2">
-									PERCLOS
-								</span>
-								<span className="font-mono text-[13px] font-medium text-text1 ml-auto">
-									0.09
-								</span>
-							</div>
-							<div className="flex items-center gap-2.5">
-								<span
-									className="w-[7px] h-[7px] rounded-full shrink-0"
-									style={{ background: "var(--color-warn)" }}
-								/>
-								<span className="font-display text-[13px] text-text2">
-									Blink rate
-								</span>
-								<span className="font-mono text-[13px] font-medium text-text1 ml-auto">
-									18/min
-								</span>
-							</div>
-							<div className="flex items-center gap-2.5">
-								<span
-									className="w-[7px] h-[7px] rounded-full shrink-0"
-									style={{ background: "var(--color-accent)" }}
-								/>
-								<span className="font-display text-[13px] text-text2">
-									Micro-sleeps
-								</span>
-								<span className="font-mono text-[13px] font-medium text-text1 ml-auto">
-									0
-								</span>
-							</div>
-							<div className="mt-2.5 inline-flex items-center gap-2 font-display text-[13px] font-medium text-ok bg-[rgba(94,200,152,0.08)] border border-[rgba(94,200,152,0.15)] rounded-[7px] py-[9px] px-4 w-fit">
-								<span className="w-[7px] h-[7px] rounded-full bg-ok shadow-[0_0_6px_rgba(94,200,152,0.4)]" />
-								All systems normal
-							</div>
-						</div>
-					</div>
-
-					<div className="grid grid-cols-3 gap-2.5 px-5 pb-6 sm:hidden">
-						<div className="text-center p-3 bg-bg border border-line rounded-lg">
-							<span
-								className="font-mono text-base font-semibold block"
-								style={{ color: "var(--color-ok)" }}
+				<div className="hero-preview relative aspect-[16/10] bg-bg2 border border-line rounded-2xl overflow-hidden">
+					<div className="hero-preview-glow absolute inset-0 pointer-events-none" />
+					<div className="absolute inset-0 flex items-center justify-center">
+						<svg
+							viewBox="0 0 120 120"
+							className="w-[min(40%,140px)] h-auto"
+							aria-hidden
+						>
+							<circle
+								cx="60"
+								cy="60"
+								r="48"
+								fill="none"
+								stroke="var(--color-bg3)"
+								strokeWidth="8"
+							/>
+							<circle
+								cx="60"
+								cy="60"
+								r="48"
+								fill="none"
+								stroke="var(--color-ok)"
+								strokeWidth="8"
+								strokeDasharray="226 75"
+								strokeDashoffset="-20"
+								strokeLinecap="round"
+								transform="rotate(-90 60 60)"
+							/>
+							<text
+								x="60"
+								y="56"
+								textAnchor="middle"
+								fill="var(--color-text1)"
+								fontFamily="Space Grotesk, sans-serif"
+								fontSize="22"
+								fontWeight="600"
 							>
-								0.09
-							</span>
-							<span className="font-display text-[10px] text-text3 mt-[5px]">
-								PERCLOS
-							</span>
-						</div>
-						<div className="text-center p-3 bg-bg border border-line rounded-lg">
-							<span
-								className="font-mono text-base font-semibold block"
-								style={{ color: "var(--color-warn)" }}
+								76
+							</text>
+							<text
+								x="60"
+								y="74"
+								textAnchor="middle"
+								fill="var(--color-text3)"
+								fontFamily="IBM Plex Mono, monospace"
+								fontSize="9"
+								fontWeight="500"
 							>
-								18/m
-							</span>
-							<span className="font-display text-[10px] text-text3 mt-[5px]">
-								Blink rate
-							</span>
-						</div>
-						<div className="text-center p-3 bg-bg border border-line rounded-lg">
-							<span
-								className="font-mono text-base font-semibold block"
-								style={{ color: "var(--color-accent)" }}
-							>
-								0
-							</span>
-							<span className="font-display text-[10px] text-text3 mt-[5px]">
-								Micro-sleeps
-							</span>
-						</div>
+								ENGAGED
+							</text>
+						</svg>
 					</div>
+					<p className="absolute bottom-0 inset-x-0 px-5 py-4 border-t border-line bg-bg1/80 font-mono text-[11px] text-text3 text-center backdrop-blur-sm">
+						Local session · PERCLOS 0.09 · Blink 18/min
+					</p>
 				</div>
 			</div>
 		</section>

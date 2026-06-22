@@ -12,8 +12,8 @@
 	--color-text2: #9b9da4;
 	--color-text3: #6a6c73;
 	--color-text4: #3f4147;
-	--color-accent: #7c83f7;
-	--color-accent-soft: rgba(124, 131, 247, 0.1);
+	--color-accent: #5b9aa9;
+	--color-accent-soft: rgba(91, 154, 169, 0.12);
 	--color-ok: #5ec898;
 	--color-warn: #e3b95a;
 	--color-danger: #e57464;
@@ -115,7 +115,7 @@ body {
 	height: min(58vw, 560px);
 	top: -14%;
 	right: -10%;
-	background: color-mix(in oklab, var(--color-accent) 22%, transparent);
+	background: color-mix(in oklab, var(--color-accent) 18%, transparent);
 	animation: ambient-drift 28s ease-in-out infinite;
 }
 
@@ -144,52 +144,35 @@ body {
 
 /* ===== COLOR-MIX HOVER EFFECTS ===== */
 .nav-cta {
-	box-shadow: 0 2px 8px rgba(124, 131, 247, 0.25);
+	box-shadow: 0 2px 8px rgba(91, 154, 169, 0.25);
 }
 
 .nav-cta:hover {
 	background: color-mix(in oklab, var(--color-accent) 90%, white);
-	box-shadow: 0 4px 16px rgba(124, 131, 247, 0.35);
+	box-shadow: 0 4px 16px rgba(91, 154, 169, 0.35);
 }
 
 .signup-btn-shadow {
-	box-shadow: 0 4px 20px rgba(124, 131, 247, 0.3);
+	box-shadow: 0 4px 20px rgba(91, 154, 169, 0.3);
 }
 
 .signup-btn-hover:hover {
 	background: color-mix(in oklab, var(--color-accent) 88%, white);
-	box-shadow: 0 4px 20px rgba(124, 131, 247, 0.3);
+	box-shadow: 0 4px 20px rgba(91, 154, 169, 0.3);
 }
 
-/* ===== DASHBOARD MOCKUP ===== */
-.dash-mockup {
-	box-shadow: 0 -12px 60px rgba(0, 0, 0, 0.55),
-		0 0 0 1px rgba(255, 255, 255, 0.03) inset;
+/* ===== HERO PREVIEW ===== */
+.hero-preview {
+	box-shadow: 0 24px 80px rgba(0, 0, 0, 0.45),
+		0 0 0 1px rgba(255, 255, 255, 0.04) inset;
 }
 
-.dash-feed::before {
-	content: "";
-	position: absolute;
-	inset: 0;
+.hero-preview-glow {
 	background: radial-gradient(
-		circle at 50% 38%,
-		rgba(124, 131, 247, 0.07),
-		transparent 60%
+		ellipse 70% 60% at 50% 40%,
+		rgba(91, 154, 169, 0.12),
+		transparent 70%
 	);
-}
-
-.dash-chrome-dot:nth-child(1) {
-	background: #e57464;
-}
-.dash-chrome-dot:nth-child(2) {
-	background: #e3b95a;
-}
-.dash-chrome-dot:nth-child(3) {
-	background: #5ec898;
-}
-
-.dash-feed-pulse {
-	animation: pulse-dot 2s ease-in-out infinite;
 }
 
 /* ===== STEPS CONNECTOR LINE ===== */
@@ -216,7 +199,7 @@ textarea:focus-visible {
 }
 
 ::selection {
-	background: rgba(124, 131, 247, 0.25);
+	background: rgba(91, 154, 169, 0.25);
 	color: var(--color-text1);
 }
 
@@ -226,9 +209,5 @@ textarea:focus-visible {
 	.ambient-blob-b,
 	.ambient-blob-c {
 		animation: none !important;
-	}
-	.dash-feed-pulse {
-		animation: none;
-		opacity: 1;
 	}
 }

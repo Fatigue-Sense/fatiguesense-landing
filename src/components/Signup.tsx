@@ -1,33 +1,18 @@
-import { useState, useEffect, useCallback } from "react";
-import { submitWaitlist } from "../lib/api";
-import { useFormSubmit } from "../hooks/useFormSubmit";
-
 export default function Signup() {
-	const [email, setEmail] = useState("");
-
-	const submitSignup = useCallback(
-		async (address: string) => submitWaitlist(address, "signup"),
-		[],
-	);
-	const { loading, error, submitted, submit } = useFormSubmit(submitSignup);
-
-	useEffect(() => {
-		if (!submitted) return;
-		const timer = setTimeout(() => setEmail(""), 3000);
-		return () => clearTimeout(timer);
-	}, [submitted]);
-
-	const handleSubmit = async (e: React.FormEvent) => {
+	const scrollToWaitlist = (e: React.MouseEvent<HTMLAnchorElement>) => {
 		e.preventDefault();
-		await submit(email);
+		const form = document.getElementById("hero-waitlist");
+		const input = document.getElementById("waitlist-email");
+		form?.scrollIntoView({ behavior: "smooth", block: "center" });
+		window.setTimeout(() => input?.focus(), 400);
 	};
 
 	return (
 		<section
-			className="py-[clamp(96px,14vh,160px)] text-center"
+			className="py-[clamp(80px,12vh,128px)] text-center border-t border-line"
 			id="signup"
 		>
-			<div className="w-[min(1200px,calc(100vw-48px))] mx-auto">
+			<div className="w-[min(560px,calc(100vw-48px))] mx-auto">
 				<p
 					className="font-display text-[clamp(22px,3.5vw,30px)] font-semibold leading-[1.3] tracking-[-0.03em] text-text1 mb-3.5"
 					data-animate="fade-up"
@@ -35,51 +20,21 @@ export default function Signup() {
 					Still in development.
 				</p>
 				<p
-					className="font-display text-[15px] text-text2 mb-9"
+					className="font-display text-[15px] leading-[1.65] text-text2 mb-8"
 					data-animate="fade-up"
 				>
-					FatigueSense is not yet available for public use. Leave
-					your email and we will notify you when it launches. One
-					email, no spam.
+					FatigueSense is not yet available for public use. Join the
+					waitlist and we will notify you at launch — one email, no
+					spam.
 				</p>
-				<form
-					className="flex flex-col sm:flex-row gap-2.5 sm:gap-0 max-w-[460px] mx-auto"
+				<a
+					href="#hero-waitlist"
+					className="signup-btn-hover inline-flex font-display text-[15px] font-semibold text-white bg-accent border-none py-3.5 px-8 rounded-lg cursor-pointer transition-[background,transform,box-shadow] duration-200 active:scale-[0.97]"
 					data-animate="fade-up"
-					onSubmit={handleSubmit}
+					onClick={scrollToWaitlist}
 				>
-					<input
-						className="flex-1 font-display text-[15px] text-text1 bg-bg2 border border-line2 py-[15px] px-5 outline-none transition-[border-color,box-shadow] duration-300 placeholder:text-text4 focus:border-accent focus:shadow-[0_0_0_3px_var(--color-accent-soft)] rounded-lg sm:rounded-l-lg sm:rounded-r-none sm:border-r-0"
-						type="email"
-						placeholder="you@example.com"
-						required
-						aria-label="Email address"
-						autoComplete="email"
-						value={email}
-						onChange={(e) => setEmail(e.target.value)}
-						disabled={loading || submitted}
-					/>
-					<button
-						className="signup-btn-hover font-display text-[15px] font-semibold text-white bg-accent border-none py-[15px] px-8 cursor-pointer whitespace-nowrap transition-[background,transform,box-shadow] duration-[0.25s,0.15s,0.25s] rounded-lg sm:rounded-l-none sm:rounded-r-lg active:scale-[0.97] disabled:opacity-60 disabled:cursor-not-allowed"
-						type="submit"
-						disabled={loading || submitted}
-					>
-						{loading
-							? "Joining..."
-							: submitted
-								? "You're in"
-								: "Stay updated"}
-					</button>
-				</form>
-				{error && (
-					<p className="font-display text-sm text-danger mt-4">
-						{error}
-					</p>
-				)}
-				{submitted && !error && (
-					<p className="font-display text-sm text-ok mt-4">
-						You are on the list. We will be in touch.
-					</p>
-				)}
+					Stay updated
+				</a>
 			</div>
 		</section>
 	);

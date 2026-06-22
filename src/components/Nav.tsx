@@ -69,9 +69,9 @@ export default function Nav() {
 							</a>
 						))}
 						<a
-							href="#signup"
+							href="#hero-waitlist"
 							className="bg-accent px-5 py-2.5 border-none rounded-[8px] font-display font-semibold text-[14px] text-white whitespace-nowrap active:scale-[0.96] transition-[background,transform,box-shadow] duration-200 cursor-pointer nav-cta"
-							onClick={(e) => handleNavClick(e, "#signup")}
+							onClick={(e) => handleNavClick(e, "#hero-waitlist")}
 						>
 							Stay updated
 						</a>
@@ -127,9 +127,9 @@ export default function Nav() {
 					</a>
 				))}
 				<a
-					href="#signup"
+					href="#hero-waitlist"
 					className="font-display font-medium text-white hover:text-text1 text-xl transition-colors duration-200"
-					onClick={(e) => handleNavClick(e, "#signup")}
+					onClick={(e) => handleNavClick(e, "#hero-waitlist")}
 				>
 					Stay updated
 				</a>
