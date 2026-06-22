@@ -43,7 +43,7 @@ export default function Nav() {
 	return (
 		<>
 			<nav
-				className={`site-nav fixed top-0 left-0 right-0 z-100 py-5${scrolled ? " scrolled" : ""}`}
+				className={`site-nav fixed top-0 left-0 right-0 z-100 py-5 ${scrolled ? " scrolled" : ""}`}
 				id="site-nav"
 			>
 				<div className="flex justify-between items-center mx-auto w-[min(1200px,calc(100vw-48px))]">

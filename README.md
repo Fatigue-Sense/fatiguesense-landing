@@ -12,6 +12,8 @@ npm run dev:api      # full stack with Vercel API routes
 
 Copy `.env.example` to `.env.local` and fill in your secrets before running `dev:api`.
 
+`vercel dev` may not load `.env.local` on all setups — the API loads it via `dotenv` as a fallback. For production, set the same variables in the **Vercel dashboard** (local `.env.local` is not deployed).
+
 ## Environment variables
 
 Set these in **Vercel → Project → Settings → Environment Variables** (and in `.env.local` for local API testing):

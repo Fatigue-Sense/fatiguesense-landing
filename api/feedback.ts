@@ -1,5 +1,7 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
+import { loadLocalEnv } from "./_lib/env";
 import { getSupabase } from "./_lib/supabase";
+import { errorResponse, logError, logInfo } from "./_lib/log";
 import { sendFeedbackNotification } from "./_lib/resend";
 import {
 	handleOptions,
@@ -9,7 +11,16 @@ import {
 	setCors,
 } from "./_lib/validate";
 
+const ROUTE = "feedback";
+
 export default async function handler(req: VercelRequest, res: VercelResponse) {
+	loadLocalEnv();
+	logInfo(ROUTE, "Request received", {
+		method: req.method,
+		hasBody: req.body != null,
+		bodyType: typeof req.body,
+	});
+
 	if (handleOptions(req, res)) return;
 	if (methodNotAllowed(req, res)) return;
 
@@ -18,12 +29,20 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 	try {
 		const { rating, message, email } = req.body ?? {};
 
+		logInfo(ROUTE, "Parsed body", {
+			rating,
+			messageLength: typeof message === "string" ? message.length : 0,
+			hasEmail: Boolean(email),
+		});
+
 		const ratingNum = Number(rating);
 		if (!Number.isInteger(ratingNum) || ratingNum < 1 || ratingNum > 5) {
+			logInfo(ROUTE, "Validation failed: invalid rating", { rating });
 			return res.status(400).json({ error: "Please select a rating from 1 to 5." });
 		}
 
 		if (typeof message !== "string" || message.trim().length === 0) {
+			logInfo(ROUTE, "Validation failed: empty message");
 			return res.status(400).json({ error: "Please enter your feedback." });
 		}
 
@@ -39,6 +58,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 			submitterEmail = normalizeEmail(email);
 		}
 
+		logInfo(ROUTE, "Inserting into Supabase", { rating: ratingNum });
+
 		const supabase = getSupabase();
 
 		const { error } = await supabase.from("feedback").insert({
@@ -48,19 +69,29 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 		});
 
 		if (error) {
-			console.error("Feedback insert failed:", error);
-			return res.status(500).json({ error: "Something went wrong. Please try again." });
+			logError(ROUTE, "Supabase insert failed", error);
+			return errorResponse(res, 500, "Something went wrong. Please try again.", {
+				code: error.code,
+				message: error.message,
+				hint: error.hint,
+			});
 		}
 
-		await sendFeedbackNotification({
+		logInfo(ROUTE, "Insert succeeded");
+
+		const notified = await sendFeedbackNotification({
 			rating: ratingNum,
 			message: message.trim(),
 			submitterEmail: submitterEmail ?? undefined,
 		});
+		logInfo(ROUTE, "Owner notification", { sent: notified });
 
+		logInfo(ROUTE, "Request completed successfully");
 		return res.status(200).json({ ok: true });
 	} catch (err) {
-		console.error("Feedback handler error:", err);
-		return res.status(500).json({ error: "Something went wrong. Please try again." });
+		logError(ROUTE, "Unhandled error", err);
+		return errorResponse(res, 500, "Something went wrong. Please try again.", {
+			message: err instanceof Error ? err.message : String(err),
+		});
 	}
 }

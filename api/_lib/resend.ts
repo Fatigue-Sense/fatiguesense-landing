@@ -1,9 +1,19 @@
 import { Resend } from "resend";
+import { loadLocalEnv } from "./env";
+import { logError, logInfo } from "./log";
 
 function getResend() {
+	loadLocalEnv();
 	const apiKey = process.env.RESEND_API_KEY;
+	logInfo("resend", "Initializing client", {
+		hasApiKey: Boolean(apiKey),
+		fromEmail: process.env.RESEND_FROM_EMAIL ?? "onboarding@resend.dev",
+		hasNotifyEmail: Boolean(process.env.NOTIFY_EMAIL),
+	});
 	if (!apiKey) {
-		throw new Error("Missing RESEND_API_KEY");
+		const err = new Error("Missing RESEND_API_KEY");
+		logError("resend", "Missing env var", err);
+		throw err;
 	}
 	return new Resend(apiKey);
 }
@@ -36,7 +46,7 @@ export async function sendWaitlistConfirmation(to: string): Promise<boolean> {
 	});
 
 	if (error) {
-		console.error("Waitlist confirmation email failed:", error);
+		logError("resend", "Waitlist confirmation email failed", error);
 		return false;
 	}
 
@@ -50,7 +60,7 @@ export async function sendFeedbackNotification(opts: {
 }): Promise<boolean> {
 	const notifyEmail = process.env.NOTIFY_EMAIL;
 	if (!notifyEmail) {
-		console.error("Missing NOTIFY_EMAIL — skipping feedback notification");
+		logError("resend", "Missing NOTIFY_EMAIL — skipping feedback notification");
 		return false;
 	}
 
@@ -77,7 +87,7 @@ export async function sendFeedbackNotification(opts: {
 	});
 
 	if (error) {
-		console.error("Feedback notification email failed:", error);
+		logError("resend", "Feedback notification email failed", error);
 		return false;
 	}
 
