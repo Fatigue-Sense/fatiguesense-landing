@@ -1,7 +1,7 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
-import { loadLocalEnv } from "./_lib/env";
-import { getSupabase } from "./_lib/supabase";
-import { errorResponse, logError, logInfo } from "./_lib/log";
+import { loadLocalEnv } from "./lib/env";
+import { getSupabase } from "./lib/supabase";
+import { errorResponse, logError, logInfo } from "./lib/log";
 import {
 	handleOptions,
 	isValidEmail,
@@ -9,7 +9,7 @@ import {
 	methodNotAllowed,
 	normalizeEmail,
 	setCors,
-} from "./_lib/validate";
+} from "./lib/validate";
 
 const ROUTE = "waitlist";
 
