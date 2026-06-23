@@ -15,7 +15,6 @@ const PHASES = [
 		status: "next" as const,
 		items: [
 			"Public beta release for waitlisted users",
-			"Lighting and skin-tone calibration wizard",
 			"Multi-session trend analysis, CSV export, and session comparison",
 			"AI session summaries via OpenRouter (bring your own key, rule-based fallback included)",
 			"Built-in Pomodoro timer - auto-suggests breaks when fatigue spikes",
