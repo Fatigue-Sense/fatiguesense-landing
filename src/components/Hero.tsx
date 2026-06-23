@@ -139,7 +139,7 @@ export default function Hero() {
 							? "Joining..."
 							: submitted
 								? "You're in"
-								: "Stay updated"}
+								: "Join waitlist"}
 					</button>
 				</form>
 				{error && (
