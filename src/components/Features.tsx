@@ -43,8 +43,8 @@ export default function Features() {
 									key={f.title}
 									data-animate="fade-up"
 								>
-									<div className="w-8 h-8 mb-5 text-accent opacity-85">
-										<svg viewBox="0 0 48 48" className="w-full h-full">
+									<div className="w-10 h-10 mb-5 rounded-xl bg-accent/10 flex items-center justify-center text-accent">
+										<svg viewBox="0 0 48 48" className="w-5 h-5">
 											<use href={`#${f.icon}`} />
 										</svg>
 									</div>
