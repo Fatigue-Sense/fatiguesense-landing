@@ -5,6 +5,7 @@ const NAV_LINKS = [
 	{ href: "#what", label: "What it is" },
 	{ href: "#features", label: "Features" },
 	{ href: "#privacy", label: "Privacy" },
+	{ href: "#roadmap", label: "Roadmap" },
 	{ href: "#team", label: "Team" },
 	{ href: "#feedback", label: "Feedback" },
 ];
@@ -69,11 +70,11 @@ export default function Nav() {
 							</a>
 						))}
 						<a
-							href="#hero-waitlist"
+							href="#hero"
 							className="bg-accent px-5 py-2.5 border-none rounded-[8px] font-display font-semibold text-[14px] text-white whitespace-nowrap active:scale-[0.96] transition-[background,transform,box-shadow] duration-200 cursor-pointer nav-cta"
-							onClick={(e) => handleNavClick(e, "#hero-waitlist")}
+							onClick={(e) => handleNavClick(e, "#hero")}
 						>
-							Stay updated
+							Join waitlist
 						</a>
 					</div>
 					<button
@@ -127,11 +128,11 @@ export default function Nav() {
 					</a>
 				))}
 				<a
-					href="#hero-waitlist"
+					href="#hero"
 					className="font-display font-medium text-white hover:text-text1 text-xl transition-colors duration-200"
-					onClick={(e) => handleNavClick(e, "#hero-waitlist")}
+					onClick={(e) => handleNavClick(e, "#hero")}
 				>
-					Stay updated
+					Join waitlist
 				</a>
 			</div>
 		</>

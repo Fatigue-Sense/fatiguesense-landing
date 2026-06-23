@@ -1,10 +1,10 @@
 export default function Signup() {
 	const scrollToWaitlist = (e: React.MouseEvent<HTMLAnchorElement>) => {
 		e.preventDefault();
-		const form = document.getElementById("hero-waitlist");
+		const hero = document.getElementById("hero");
 		const input = document.getElementById("waitlist-email");
-		form?.scrollIntoView({ behavior: "smooth", block: "center" });
-		window.setTimeout(() => input?.focus(), 400);
+		hero?.scrollIntoView({ behavior: "smooth", block: "start" });
+		window.setTimeout(() => input?.focus(), 600);
 	};
 
 	return (
@@ -28,12 +28,12 @@ export default function Signup() {
 					spam.
 				</p>
 				<a
-					href="#hero-waitlist"
+					href="#hero"
 					className="signup-btn-hover inline-flex font-display text-[15px] font-semibold text-white bg-accent border-none py-3.5 px-8 rounded-lg cursor-pointer transition-[background,transform,box-shadow] duration-200 active:scale-[0.97]"
 					data-animate="fade-up"
 					onClick={scrollToWaitlist}
 				>
-					Stay updated
+					Join waitlist
 				</a>
 			</div>
 		</section>
