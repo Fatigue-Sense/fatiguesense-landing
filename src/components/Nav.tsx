@@ -8,6 +8,7 @@ const NAV_LINKS = [
 	{ href: "#roadmap", label: "Roadmap" },
 	{ href: "#team", label: "Team" },
 	{ href: "#feedback", label: "Feedback" },
+	{ href: "#suggestions", label: "Ideas" },
 ];
 
 const linkClass =

@@ -8,6 +8,7 @@ import Privacy from "./components/Privacy";
 import Roadmap from "./components/Roadmap";
 import Team from "./components/Team";
 import Feedback from "./components/Feedback";
+import Suggestions from "./components/Suggestions";
 import Signup from "./components/Signup";
 import Footer from "./components/Footer";
 import useScrollReveal from "./hooks/useScrollReveal";
@@ -27,6 +28,7 @@ export default function App() {
 			<Roadmap />
 			<Team />
 			<Feedback />
+			<Suggestions />
 			<Signup />
 			<Footer />
 		</>

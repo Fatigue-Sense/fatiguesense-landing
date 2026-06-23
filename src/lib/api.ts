@@ -78,3 +78,10 @@ export async function submitFeedback(opts: {
 }): Promise<void> {
 	await postJson("/api/feedback", opts);
 }
+
+export async function submitSuggestion(opts: {
+	suggestion: string;
+	email?: string;
+}): Promise<void> {
+	await postJson("/api/suggestions", opts);
+}
