@@ -18,6 +18,7 @@ export default function useScrollReveal() {
 
 		const triggers: ScrollTrigger[] = [];
 
+		/* General fade-up / scale-in */
 		const revealElements = gsap.utils.toArray(
 			"[data-animate]",
 		) as HTMLElement[];
@@ -29,14 +30,14 @@ export default function useScrollReveal() {
 
 			const st = ScrollTrigger.create({
 				trigger: el,
-				start: "top bottom-=80",
+				start: "top 82%",
 				once: true,
 				onEnter: () => {
 					if (animType === "fade-up") {
 						gsap.to(el, {
 							opacity: 1,
 							y: 0,
-							duration: 0.75,
+							duration: 0.8,
 							ease: "power3.out",
 						});
 					} else if (animType === "scale-in") {
@@ -57,14 +58,14 @@ export default function useScrollReveal() {
 		if (featuresGrid) {
 			const st = ScrollTrigger.create({
 				trigger: featuresGrid,
-				start: "top bottom-=60",
+				start: "top 80%",
 				once: true,
 				onEnter: () => {
 					gsap.to(".feature-card", {
 						opacity: 1,
 						y: 0,
-						duration: 0.6,
-						stagger: 0.1,
+						duration: 0.7,
+						stagger: 0.12,
 						ease: "power3.out",
 					});
 				},
@@ -78,14 +79,14 @@ export default function useScrollReveal() {
 		if (privacyPoints) {
 			const st = ScrollTrigger.create({
 				trigger: privacyPoints,
-				start: "top bottom-=40",
+				start: "top 85%",
 				once: true,
 				onEnter: () => {
 					gsap.to(".privacy-point", {
 						opacity: 1,
 						y: 0,
-						duration: 0.5,
-						stagger: 0.08,
+						duration: 0.55,
+						stagger: 0.1,
 						ease: "power3.out",
 					});
 				},
@@ -99,14 +100,14 @@ export default function useScrollReveal() {
 		if (teamGrid) {
 			const st = ScrollTrigger.create({
 				trigger: teamGrid,
-				start: "top bottom-=60",
+				start: "top 80%",
 				once: true,
 				onEnter: () => {
 					gsap.to(".team-card", {
 						opacity: 1,
 						y: 0,
-						duration: 0.5,
-						stagger: 0.1,
+						duration: 0.6,
+						stagger: 0.12,
 						ease: "power3.out",
 					});
 				},
@@ -115,25 +116,25 @@ export default function useScrollReveal() {
 			gsap.set(".team-card", { opacity: 0, y: 24 });
 		}
 
-		/* Roadmap timeline stagger */
+		/* Roadmap timeline stagger - deeper trigger, longer duration */
 		const roadmapTimeline = document.querySelector(".roadmap-timeline");
 		if (roadmapTimeline) {
 			const st = ScrollTrigger.create({
 				trigger: roadmapTimeline,
-				start: "top bottom-=40",
+				start: "top 78%",
 				once: true,
 				onEnter: () => {
 					gsap.to(".roadmap-phase", {
 						opacity: 1,
 						y: 0,
-						duration: 0.55,
-						stagger: 0.12,
+						duration: 0.7,
+						stagger: 0.18,
 						ease: "power3.out",
 					});
 				},
 			});
 			triggers.push(st);
-			gsap.set(".roadmap-phase", { opacity: 0, y: 18 });
+			gsap.set(".roadmap-phase", { opacity: 0, y: 20 });
 		}
 
 		/* Footer reveal */
@@ -141,7 +142,7 @@ export default function useScrollReveal() {
 		if (footer) {
 			const st = ScrollTrigger.create({
 				trigger: footer,
-				start: "top bottom-=40",
+				start: "top 88%",
 				once: true,
 				onEnter: () => {
 					gsap.to(footer, {
