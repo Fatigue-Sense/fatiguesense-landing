@@ -7,8 +7,7 @@ const NAV_LINKS = [
 	{ href: "#privacy", label: "Privacy" },
 	{ href: "#roadmap", label: "Roadmap" },
 	{ href: "#team", label: "Team" },
-	{ href: "#feedback", label: "Feedback" },
-	{ href: "#suggestions", label: "Ideas" },
+	{ href: "#share", label: "Share" },
 ];
 
 const linkClass =
