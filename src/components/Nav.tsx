@@ -82,6 +82,7 @@ export default function Nav() {
 						id="hamburger"
 						aria-label="Open menu"
 						onClick={() => setMenuOpen(true)}
+							style={menuOpen ? { visibility: "hidden" } : undefined}
 					>
 						<svg
 							className="w-[18px] h-[18px]"
