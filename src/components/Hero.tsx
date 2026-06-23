@@ -108,7 +108,7 @@ export default function Hero() {
 					ref={subtitleRef}
 				>
 					Real-time cognitive state tracking through your webcam. No
-					wearables, no hardware. Currently in development — not yet
+					wearables, no hardware. Currently in development - not yet
 					available for public use.
 				</p>
 

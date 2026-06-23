@@ -55,14 +55,14 @@ export default function Roadmap() {
 				</div>
 
 				{/* timeline */}
-				<div className="relative max-w-[720px] mx-auto">
+				<div className="roadmap-timeline relative max-w-[720px] mx-auto">
 					{/* vertical line */}
 					<div className="absolute left-[11px] top-3 bottom-3 w-px bg-line md:left-5" />
 
 					{PHASES.map((phase) => (
 						<div
 							key={phase.num}
-							className={`relative pl-10 pb-14 last:pb-0 md:pl-14 group ${
+							className={`roadmap-phase relative pl-10 pb-14 last:pb-0 md:pl-14 group ${
 								phase.status === "done"
 									? "opacity-100"
 									: "opacity-90"

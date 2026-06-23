@@ -220,6 +220,19 @@ textarea:focus-visible {
 	color: var(--color-text1);
 }
 
+/* ===== ROADMAP TIMELINE ===== */
+.roadmap-timeline > div:first-child {
+	transform-origin: top center;
+	animation: timeline-grow linear both;
+	animation-timeline: view();
+	animation-range: entry 10% exit 80%;
+}
+
+@keyframes timeline-grow {
+	from { transform: scaleY(0); }
+	to   { transform: scaleY(1); }
+}
+
 /* ===== REDUCED MOTION ===== */
 @media (prefers-reduced-motion: reduce) {
 	.ambient-blob-a,

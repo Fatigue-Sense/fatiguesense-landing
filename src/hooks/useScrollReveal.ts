@@ -115,6 +115,27 @@ export default function useScrollReveal() {
 			gsap.set(".team-card", { opacity: 0, y: 24 });
 		}
 
+		/* Roadmap timeline stagger */
+		const roadmapTimeline = document.querySelector(".roadmap-timeline");
+		if (roadmapTimeline) {
+			const st = ScrollTrigger.create({
+				trigger: roadmapTimeline,
+				start: "top bottom-=40",
+				once: true,
+				onEnter: () => {
+					gsap.to(".roadmap-phase", {
+						opacity: 1,
+						y: 0,
+						duration: 0.55,
+						stagger: 0.12,
+						ease: "power3.out",
+					});
+				},
+			});
+			triggers.push(st);
+			gsap.set(".roadmap-phase", { opacity: 0, y: 18 });
+		}
+
 		/* Footer reveal */
 		const footer = document.querySelector("footer");
 		if (footer) {
