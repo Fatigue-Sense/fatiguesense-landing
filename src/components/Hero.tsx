@@ -23,11 +23,14 @@ export default function Hero() {
 		async (address: string) => submitWaitlist(address, "hero"),
 		[],
 	);
-	const { loading, error, submitted, submit } = useFormSubmit(submitHero);
+	const { loading, error, submitted, submit, reset } = useFormSubmit(submitHero);
 
 	useEffect(() => {
 		if (!submitted) return;
-		const timer = setTimeout(() => setEmail(""), 3000);
+		const timer = setTimeout(() => {
+				setEmail("");
+				reset();
+			}, 4000);
 		return () => clearTimeout(timer);
 	}, [submitted]);
 
@@ -128,12 +131,12 @@ export default function Hero() {
 						autoComplete="email"
 						value={email}
 						onChange={(e) => setEmail(e.target.value)}
-						disabled={loading || submitted}
+						disabled={loading}
 					/>
 					<button
 						className={btnCls}
 						type="submit"
-						disabled={loading || submitted}
+						disabled={loading}
 					>
 						{loading
 							? "Joining..."
@@ -150,7 +153,7 @@ export default function Hero() {
 				{submitted && !error && (
 					<p className="font-display text-sm text-ok text-center mt-2.5">
 						You&rsquo;re on the list. No confirmation email will be sent
-						&mdash; double-check your address above. We will reach out
+						- double-check your address above. We will reach out
 						when we launch.
 					</p>
 				)}
