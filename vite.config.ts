@@ -10,11 +10,9 @@ export default defineConfig({
 		babel({ presets: [reactCompilerPreset()] }),
 		tailwindcss(),
 	],
-	server: process.env.VERCEL
-		? {}
-		: {
-				proxy: {
-					"/api": "http://localhost:3000",
-				},
-			},
+	server: {
+		proxy: {
+			"/api": "http://localhost:3000",
+		},
+	},
 });
