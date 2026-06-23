@@ -5,6 +5,7 @@ import Hero from "./components/Hero";
 import WhatItIs from "./components/WhatItIs";
 import Features from "./components/Features";
 import Privacy from "./components/Privacy";
+import Roadmap from "./components/Roadmap";
 import Team from "./components/Team";
 import Feedback from "./components/Feedback";
 import Signup from "./components/Signup";
@@ -23,6 +24,7 @@ export default function App() {
 			<WhatItIs />
 			<Features />
 			<Privacy />
+			<Roadmap />
 			<Team />
 			<Feedback />
 			<Signup />
