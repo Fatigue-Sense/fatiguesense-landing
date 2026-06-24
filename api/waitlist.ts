@@ -102,20 +102,52 @@ function methodNotAllowed(req: VercelRequest, res: VercelResponse): boolean {
 	return false;
 }
 
-// ---- rate limit -------------------------------------------------------
-const rateMap = new Map<string, { count: number; resetAt: number }>();
+// ---- rate limit (file-based, survives vercel dev isolation) -----------
+import { mkdirSync, readFileSync, writeFileSync, existsSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+
+const RATE_DIR = join(tmpdir(), "fatiguesense-rate");
+const RATE_WINDOW = 60_000;
+const RATE_MAX = 5;
+
+function ensureRateDir() {
+	if (!existsSync(RATE_DIR)) mkdirSync(RATE_DIR, { recursive: true });
+}
+
+function rateFilePath(route: string, ip: string): string {
+	return join(RATE_DIR, `${route}_${ip.replace(/[^a-zA-Z0-9]/g, "_")}.json`);
+}
+
+interface RateEntry {
+	count: number;
+	resetAt: number;
+}
 
 function checkRateLimit(ip: string, route: string): boolean {
-	const key = `${route}:${ip}`;
-	const now = Date.now();
-	const entry = rateMap.get(key);
-	if (!entry || now > entry.resetAt) {
-		rateMap.set(key, { count: 1, resetAt: now + 60_000 });
+	try {
+		ensureRateDir();
+		const fp = rateFilePath(route, ip);
+		const now = Date.now();
+		let entry: RateEntry;
+		if (existsSync(fp)) {
+			entry = JSON.parse(readFileSync(fp, "utf-8")) as RateEntry;
+		} else {
+			entry = { count: 0, resetAt: now + RATE_WINDOW };
+		}
+		if (now > entry.resetAt) {
+			entry = { count: 0, resetAt: now + RATE_WINDOW };
+		}
+		if (entry.count >= RATE_MAX) {
+			writeFileSync(fp, JSON.stringify(entry));
+			return false;
+		}
+		entry.count++;
+		writeFileSync(fp, JSON.stringify(entry));
 		return true;
+	} catch {
+		return true; // fail open if filesystem has issues
 	}
-	if (entry.count >= 5) return false;
-	entry.count++;
-	return true;
 }
 
 // ---- handler --------------------------------------------------------
