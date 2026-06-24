@@ -102,6 +102,22 @@ function methodNotAllowed(req: VercelRequest, res: VercelResponse): boolean {
 	return false;
 }
 
+// ---- rate limit -------------------------------------------------------
+const rateMap = new Map<string, { count: number; resetAt: number }>();
+
+function checkRateLimit(ip: string, route: string): boolean {
+	const key = `${route}:${ip}`;
+	const now = Date.now();
+	const entry = rateMap.get(key);
+	if (!entry || now > entry.resetAt) {
+		rateMap.set(key, { count: 1, resetAt: now + 60_000 });
+		return true;
+	}
+	if (entry.count >= 5) return false;
+	entry.count++;
+	return true;
+}
+
 // ---- handler --------------------------------------------------------
 const ROUTE = "waitlist";
 
@@ -113,6 +129,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 	if (methodNotAllowed(req, res)) return;
 
 	setCors(res);
+
+	const ip = (req.headers["x-forwarded-for"] as string) || req.socket.remoteAddress || "unknown";
+	if (!checkRateLimit(ip, ROUTE)) {
+		return res.status(429).json({ error: "Too many requests. Please wait a moment." });
+	}
 
 	try {
 		const { email, source } = req.body ?? {};
